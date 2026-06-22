@@ -60,7 +60,7 @@ export default function LoginPage() {
       <div 
         style={{ 
           minHeight: '100vh', 
-          background: 'linear-gradient(135deg, rgba(245, 245, 220, 0.95), rgba(255, 255, 255, 0.95))',
+          background: 'var(--bg-color)',
           paddingTop: '130px',
           paddingBottom: '80px',
           display: 'flex',
@@ -75,7 +75,7 @@ export default function LoginPage() {
               Welcome Back
             </h1>
             <p style={{ color: 'var(--gray-text)', marginTop: '6px' }}>
-              Login to your student/host account
+              Login to your account
             </p>
           </div>
 
@@ -165,11 +165,11 @@ export default function LoginPage() {
             alignItems: 'center', 
             gap: '16px', 
             margin: '24px 0',
-            color: '#94a3b8'
+            color: 'var(--gray-text)'
           }}>
-            <hr style={{ flex: '1', border: 'none', borderTop: '1px solid #e2e8f0' }} />
+            <hr style={{ flex: '1', border: 'none', borderTop: '1px solid var(--border-color)' }} />
             <span style={{ fontSize: '0.85rem' }}>OR</span>
-            <hr style={{ flex: '1', border: 'none', borderTop: '1px solid #e2e8f0' }} />
+            <hr style={{ flex: '1', border: 'none', borderTop: '1px solid var(--border-color)' }} />
           </div>
 
           <GoogleButton redirectTo="/events" />
@@ -178,7 +178,7 @@ export default function LoginPage() {
             style={{ 
               marginTop: '24px', 
               paddingTop: '20px', 
-              borderTop: '1px solid rgba(0,0,0,0.06)',
+              borderTop: '1px solid var(--border-color)',
               textAlign: 'center',
               display: 'flex',
               flexDirection: 'column',
@@ -192,17 +192,11 @@ export default function LoginPage() {
                 Sign Up
               </Link>
             </span>
-            <span style={{ color: 'var(--gray-text)' }}>
-              Want to organize events?{' '}
-              <Link href="/auth/host-register" style={{ color: 'var(--primary)', fontWeight: '600' }}>
-                Register as Host
-              </Link>
-            </span>
           </div>
         </div>
       </div>
 
-      <footer style={{ background: 'var(--dark)' }}>
+      <footer style={{ background: 'var(--footer-bg)' }}>
         <div className="container">
           <div className="footer-content">
             <div className="footer-left">
@@ -212,7 +206,10 @@ export default function LoginPage() {
             </div>
             <div className="footer-right">
               <span className="role" style={{ fontSize: '1.05rem', fontWeight: '500' }}>
-                <i className="fas fa-phone-alt" style={{ color: 'var(--primary-light)', marginRight: '8px' }}></i> 
+                <i className="fas fa-envelope" style={{ color: 'var(--primary-light)', marginRight: '8px' }}></i>
+                <a href="mailto:202304042.alvinakml@student.xavier.ac.in" style={{ color: 'white', textDecoration: 'none' }}>
+                  202304042.alvinakml@student.xavier.ac.in
+                </a>
               </span>
               <span style={{ fontSize: '0.85rem', opacity: '0.7' }}>Mahim, Mumbai, Maharashtra 400016</span>
             </div>

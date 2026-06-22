@@ -6,16 +6,18 @@ import { supabase } from '@/lib/supabase'
 
 export default function GoogleButton({ redirectTo = '/events' }) {
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
   
   const handleGoogleLogin = async () => {
     setLoading(true)
     try {
-      console.log('🔍 Starting Google login...')
+      const origin = window.location.origin
+      console.log('🔍 Starting Google login from:', origin)
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}${redirectTo}`,
+          redirectTo: `${origin}/auth/callback`,
         },
       })
 

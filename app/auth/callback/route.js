@@ -1,5 +1,6 @@
 // app/auth/callback/route.js
-import { createClient } from '@supabase/supabase-js'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 export async function GET(request) {
@@ -15,13 +16,42 @@ export async function GET(request) {
   }
 
   try {
-    // ✅ Create Supabase client
-    const supabase = createClient(
+    const cookieStore = await cookies()
+    
+    // ✅ Use createServerClient for proper cookie handling
+    const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          get(name) {
+            return cookieStore.get(name)?.value
+          },
+          set(name, value, options) {
+            cookieStore.set({
+              name,
+              value,
+              ...options,
+              path: '/',
+              secure: process.env.NODE_ENV === 'production',
+              sameSite: 'lax',
+              httpOnly: true,
+              maxAge: 60 * 60 * 24 * 7, // 7 days
+            })
+          },
+          remove(name, options) {
+            cookieStore.set({
+              name,
+              value: '',
+              ...options,
+              path: '/',
+              maxAge: 0,
+            })
+          },
+        },
+      }
     )
 
-    // ✅ Exchange code for session
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (error) {
@@ -31,35 +61,8 @@ export async function GET(request) {
 
     console.log('✅ Session set successfully for user:', data?.user?.email)
 
-    // ✅ Create response with redirect
-    const response = NextResponse.redirect(new URL('/events', requestUrl.origin))
-
-    // ✅ Set the session cookies manually
-    if (data?.session) {
-      const { access_token, refresh_token } = data.session
-      
-      // Set access token cookie
-      response.cookies.set('sb-access-token', access_token, {
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-        sameSite: 'lax',
-      })
-      
-      // Set refresh token cookie
-      response.cookies.set('sb-refresh-token', refresh_token, {
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-        sameSite: 'lax',
-      })
-      
-      console.log('✅ Cookies set successfully')
-    }
-
-    return response
+    // ✅ Redirect to events page
+    return NextResponse.redirect(new URL('/events', requestUrl.origin))
 
   } catch (err) {
     console.error('❌ Callback error:', err)

@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import ThemeToggle from '@/components/ThemeToggle'
-import { supabase } from '@/lib/supabase'
 
 export default function Navbar() {
   const [user, setUser] = useState(null)
@@ -17,34 +17,50 @@ export default function Navbar() {
   useEffect(() => {
     async function getUser() {
       try {
-        // console.log('🔍 Getting user...')
-        const { data: { user: currentUser }, error } = await supabase.auth.getUser()
+        console.log('🔍 Getting user...')
         
-        if (error && error.name !== 'AuthSessionMissingError') {
-          console.error('❌ Error getting user:', error.message)
-        } else if (currentUser) {
-          // console.log('👤 Current user:', currentUser.email)
+        // ✅ Check for existing session first
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        
+        if (sessionError) {
+          console.error('❌ Session error:', sessionError)
+          setLoading(false)
+          return
         }
         
-        setUser(currentUser)
+        if (session?.user) {
+          console.log('👤 Session found for:', session.user.email)
+          setUser(session.user)
+          setLoading(false)
+          return
+        }
+        
+        // ✅ Only call getUser if we have a session
+        // If no session, just set user to null
+        console.log('👤 No session found, user is not logged in')
+        setUser(null)
+        
       } catch (err) {
-        if (err.name !== 'AuthSessionMissingError') {
-          console.error('❌ Unexpected error getting user:', err)
-        }
+        console.error('❌ Error getting user:', err)
+        setUser(null)
       } finally {
         setLoading(false)
       }
     }
+    
     getUser()
 
     // ✅ Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('🔄 Auth state changed - Event:', event)
-      console.log('🔄 Session:', session?.user)
-      setUser(session?.user || null)
-      setLoading(false)
-      // Refresh the page to update all components
-      if (event === 'SIGNED_IN') {
+      console.log('🔄 Session user:', session?.user?.email)
+      
+      if (session?.user) {
+        setUser(session.user)
+        setLoading(false)
+        router.refresh()
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null)
         router.refresh()
       }
     })
@@ -85,7 +101,7 @@ export default function Navbar() {
 
   const isLandingPage = pathname === '/'
 
-  // Show loading state
+  // ✅ Show loading state
   if (loading) {
     return (
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
@@ -147,7 +163,6 @@ export default function Navbar() {
           </Link>
         </li>
 
-        {/* ✅ Profile & My Events - Only show when user is logged in */}
         {user && (
           <>
             <li>
@@ -163,12 +178,23 @@ export default function Navbar() {
           </>
         )}
 
-        {/* ✅ User Auth Buttons in navbar */}
         <li className="nav-actions" style={{ marginLeft: '16px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
           {user ? (
             <>
               <Link href="/events/create" className="btn-secondary" onClick={closeMenu} style={{ padding: '8px 20px', fontSize: '0.85rem' }}>
                 <i className="fas fa-plus-circle" style={{ marginRight: '6px' }}></i>Host Event
+              </Link>
+              <Link href="/admin" onClick={closeMenu} style={{
+                padding: '8px 20px',
+                fontSize: '0.85rem',
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                borderRadius: '50px',
+                textDecoration: 'none',
+                fontWeight: '600',
+                display: 'inline-block'
+              }}>
+                ⚙️ Admin
               </Link>
               <button 
                 onClick={() => { handleLogout(); closeMenu(); }}
