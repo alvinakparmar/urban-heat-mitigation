@@ -23,6 +23,7 @@ export default function AdminDashboard() {
   const [password, setPassword] = useState('')
   const [loginError, setLoginError] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
+  const [error, setError] = useState('')
 
   // ✅ Check admin login
   useEffect(() => {
@@ -50,56 +51,67 @@ export default function AdminDashboard() {
     }
   }
 
-  // ✅ Fetch all data
+  // ✅ Fetch all data with admin API key
   const fetchData = async () => {
     setLoading(true)
+    setError('')
+    
     try {
-      // Get stats
-      const [
-        { count: usersCount },
-        { count: eventsCount },
-        { count: messagesCount }
-      ] = await Promise.all([
-        supabase.from('users').select('*', { count: 'exact', head: true }),
-        supabase.from('events').select('*', { count: 'exact', head: true }),
-        supabase.from('contact_messages').select('*', { count: 'exact', head: true })
-      ])
+      console.log('📊 Fetching admin data...')
 
-      setStats({
-        users: usersCount || 0,
-        events: eventsCount || 0,
-        messages: messagesCount || 0
-      })
+      // ✅ Get users - try different approaches
+      let usersData = []
+      let usersError = null
+      let usersCount = 0
 
-      // Get users
-      const { data: usersData } = await supabase
+      // Approach 1: Simple select
+      const result = await supabase
         .from('users')
-        .select('*')
+        .select('*', { count: 'exact' })
         .order('created_at', { ascending: false })
 
-      setUsers(usersData || [])
+      if (result.error) {
+        console.error('❌ Error fetching users:', result.error)
+        usersError = result.error
+        setError(`Error: ${result.error.message}`)
+      } else {
+        usersData = result.data || []
+        usersCount = result.count || 0
+        console.log(`✅ Found ${usersData.length} users`)
+        console.log('📋 Users:', usersData)
+      }
+
+      setUsers(usersData)
+      setStats(prev => ({ ...prev, users: usersCount }))
 
       // Get events
-      const { data: eventsData } = await supabase
+      const { data: eventsData, error: eventsError, count: eventsCount } = await supabase
         .from('events')
         .select(`
           *,
           users (full_name, username)
-        `)
+        `, { count: 'exact' })
         .order('created_at', { ascending: false })
 
-      setEvents(eventsData || [])
+      if (!eventsError) {
+        setEvents(eventsData || [])
+        setStats(prev => ({ ...prev, events: eventsCount || 0 }))
+      }
 
       // Get messages
-      const { data: messagesData } = await supabase
+      const { data: messagesData, error: messagesError, count: messagesCount } = await supabase
         .from('contact_messages')
-        .select('*')
+        .select('*', { count: 'exact' })
         .order('created_at', { ascending: false })
 
-      setMessages(messagesData || [])
+      if (!messagesError) {
+        setMessages(messagesData || [])
+        setStats(prev => ({ ...prev, messages: messagesCount || 0 }))
+      }
 
     } catch (error) {
-      console.error('Error fetching data:', error)
+      console.error('❌ Error fetching data:', error)
+      setError(error.message)
     } finally {
       setLoading(false)
     }
@@ -107,7 +119,7 @@ export default function AdminDashboard() {
 
   // ✅ Delete user
   const handleDeleteUser = async (userId) => {
-    if (!confirm('⚠️ Are you sure you want to delete this user? This will also delete all their events and registrations.')) return
+    if (!confirm('⚠️ Are you sure you want to delete this user?')) return
 
     try {
       const { error } = await supabase
@@ -129,16 +141,14 @@ export default function AdminDashboard() {
 
   // ✅ Delete event
   const handleDeleteEvent = async (eventId) => {
-    if (!confirm('⚠️ Are you sure you want to delete this event? This will also delete all registrations.')) return
+    if (!confirm('⚠️ Are you sure you want to delete this event?')) return
 
     try {
-      // Delete registrations first
       await supabase
         .from('event_registrations')
         .delete()
         .eq('event_id', eventId)
 
-      // Delete event
       const { error } = await supabase
         .from('events')
         .delete()
@@ -208,8 +218,7 @@ export default function AdminDashboard() {
   // ✅ Filtered lists
   const filteredUsers = users.filter(u =>
     u.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    u.username?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const filteredEvents = events.filter(e =>
@@ -223,7 +232,7 @@ export default function AdminDashboard() {
     m.message?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  // ✅ Render login screen - UPDATED with dark mode support
+  // ✅ Render login screen
   if (showLogin) {
     return (
       <>
@@ -285,8 +294,6 @@ export default function AdminDashboard() {
                     color: 'var(--text-color)',
                     outline: 'none'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
-                  onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
                 />
               </div>
 
@@ -308,8 +315,6 @@ export default function AdminDashboard() {
                     color: 'var(--text-color)',
                     outline: 'none'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
-                  onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
                 />
               </div>
 
@@ -324,19 +329,12 @@ export default function AdminDashboard() {
                   borderRadius: '8px',
                   fontSize: '1rem',
                   fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background 0.3s ease'
+                  cursor: 'pointer'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-dark)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
               >
                 Login
               </button>
             </form>
-
-            <p style={{ textAlign: 'center', marginTop: '16px', color: 'var(--gray-text)', fontSize: '0.8rem' }}>
-              Contact admin for credentials
-            </p>
           </div>
         </div>
       </>
@@ -349,8 +347,23 @@ export default function AdminDashboard() {
       <>
         <Navbar />
         <div style={{ padding: '140px 24px 80px', textAlign: 'center' }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '4px solid var(--border-color)',
+            borderTop: '4px solid var(--primary)',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px'
+          }}></div>
           <p style={{ color: 'var(--text-color)' }}>Loading admin dashboard...</p>
         </div>
+        <style jsx>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
       </>
     )
   }
@@ -380,21 +393,42 @@ export default function AdminDashboard() {
             <div>
               <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-color)' }}>⚙️ Admin Dashboard</h1>
               <p style={{ color: 'var(--gray-text)' }}>Manage users, events, and messages</p>
+              {error && (
+                <p style={{ color: '#dc2626', fontSize: '0.9rem', marginTop: '4px' }}>
+                  ⚠️ {error}
+                </p>
+              )}
             </div>
-            <button
-              onClick={handleLogout}
-              style={{
-                padding: '8px 20px',
-                backgroundColor: '#dc2626',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: '600'
-              }}
-            >
-              Logout
-            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={fetchData}
+                style={{
+                  padding: '8px 20px',
+                  backgroundColor: 'var(--primary)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+              >
+                🔄 Refresh
+              </button>
+              <button
+                onClick={handleLogout}
+                style={{
+                  padding: '8px 20px',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+              >
+                Logout
+              </button>
+            </div>
           </div>
 
           {/* Stats Cards */}
@@ -459,8 +493,6 @@ export default function AdminDashboard() {
                 color: 'var(--text-color)',
                 outline: 'none'
               }}
-              onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
-              onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
             />
           </div>
 
@@ -580,11 +612,6 @@ export default function AdminDashboard() {
                     <div style={{ color: 'var(--gray-text)' }}>Messages</div>
                   </div>
                 </div>
-                <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#fef3c7', borderRadius: '8px' }}>
-                  <p style={{ color: '#92400e' }}>
-                    💡 Tip: Use the tabs above to manage users, events, or messages.
-                  </p>
-                </div>
               </div>
             </div>
           )}
@@ -600,61 +627,93 @@ export default function AdminDashboard() {
               overflow: 'hidden'
             }}>
               {filteredUsers.length === 0 ? (
-                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--gray-text)' }}>
-                  No users found
+                <div style={{ padding: '40px', textAlign: 'center' }}>
+                  <p style={{ color: 'var(--text-color)', fontSize: '1.1rem', marginBottom: '8px' }}>
+                    👥 No users found
+                  </p>
+                  <p style={{ color: 'var(--gray-text)', fontSize: '0.9rem' }}>
+                    {error || 'Try refreshing the page or check RLS policies.'}
+                  </p>
+                  <button
+                    onClick={fetchData}
+                    style={{
+                      marginTop: '16px',
+                      padding: '10px 24px',
+                      backgroundColor: 'var(--primary)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontWeight: '600'
+                    }}
+                  >
+                    🔄 Refresh Data
+                  </button>
                 </div>
               ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead style={{ backgroundColor: 'var(--bg-color)', borderBottom: '1px solid var(--border-color)' }}>
-                    <tr>
-                      <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Name</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Username</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Type</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Joined</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-color)' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredUsers.map((user) => (
-                      <tr key={user.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                        <td style={{ padding: '12px 16px', color: 'var(--text-color)' }}>{user.full_name || 'Unknown'}</td>
-                        <td style={{ padding: '12px 16px', color: 'var(--text-color)' }}>@{user.username || 'N/A'}</td>
-                        <td style={{ padding: '12px 16px' }}>
-                          <span style={{
-                            display: 'inline-block',
-                            padding: '2px 10px',
-                            borderRadius: '12px',
-                            fontSize: '0.7rem',
-                            fontWeight: '600',
-                            backgroundColor: user.user_type === 'host' ? '#d1fae5' : '#dbeafe',
-                            color: user.user_type === 'host' ? '#065f46' : '#1e40af'
-                          }}>
-                            {user.user_type || 'user'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px 16px', color: 'var(--gray-text)', fontSize: '0.85rem' }}>
-                          {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
-                        </td>
-                        <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                          <button
-                            onClick={() => handleDeleteUser(user.id)}
-                            style={{
-                              padding: '4px 12px',
-                              backgroundColor: '#dc2626',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '6px',
-                              cursor: 'pointer',
-                              fontSize: '0.8rem'
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </td>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '500px' }}>
+                    <thead style={{ backgroundColor: 'var(--bg-color)', borderBottom: '1px solid var(--border-color)' }}>
+                      <tr>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>#</th>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Name</th>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Username</th>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Type</th>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Joined</th>
+                        <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-color)' }}>Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {filteredUsers.map((user, index) => (
+                        <tr key={user.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                          <td style={{ padding: '12px 16px', color: 'var(--gray-text)' }}>{index + 1}</td>
+                          <td style={{ padding: '12px 16px', color: 'var(--text-color)', fontWeight: '500' }}>
+                            {user.full_name || 'Unknown'}
+                          </td>
+                          <td style={{ padding: '12px 16px', color: 'var(--text-color)' }}>
+                            @{user.username || 'N/A'}
+                          </td>
+                          <td style={{ padding: '12px 16px' }}>
+                            <span style={{
+                              display: 'inline-block',
+                              padding: '2px 10px',
+                              borderRadius: '12px',
+                              fontSize: '0.7rem',
+                              fontWeight: '600',
+                              backgroundColor: user.user_type === 'host' ? '#d1fae5' : '#dbeafe',
+                              color: user.user_type === 'host' ? '#065f46' : '#1e40af'
+                            }}>
+                              {user.user_type || 'user'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px 16px', color: 'var(--gray-text)', fontSize: '0.85rem' }}>
+                            {user.created_at ? new Date(user.created_at).toLocaleDateString('en-IN', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            }) : 'N/A'}
+                          </td>
+                          <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                            <button
+                              onClick={() => handleDeleteUser(user.id)}
+                              style={{
+                                padding: '4px 12px',
+                                backgroundColor: '#dc2626',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontSize: '0.8rem'
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           )}
@@ -674,78 +733,82 @@ export default function AdminDashboard() {
                   No events found
                 </div>
               ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead style={{ backgroundColor: 'var(--bg-color)', borderBottom: '1px solid var(--border-color)' }}>
-                    <tr>
-                      <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Event</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Category</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Host</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Status</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-color)' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredEvents.map((event) => (
-                      <tr key={event.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                        <td style={{ padding: '12px 16px' }}>
-                          <div>
-                            <strong style={{ color: 'var(--text-color)' }}>{event.title}</strong>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--gray-text)' }}>
-                              {new Date(event.start_date).toLocaleDateString()}
-                            </div>
-                          </div>
-                        </td>
-                        <td style={{ padding: '12px 16px' }}>
-                          <span style={{
-                            display: 'inline-block',
-                            padding: '2px 10px',
-                            borderRadius: '12px',
-                            fontSize: '0.7rem',
-                            fontWeight: '600',
-                            backgroundColor: '#e8f5e9',
-                            color: '#2E7D32'
-                          }}>
-                            {event.category || 'General'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px 16px', color: 'var(--text-color)' }}>{event.users?.full_name || 'Unknown'}</td>
-                        <td style={{ padding: '12px 16px' }}>
-                          <span style={{
-                            display: 'inline-block',
-                            padding: '2px 10px',
-                            borderRadius: '12px',
-                            fontSize: '0.7rem',
-                            fontWeight: '600',
-                            backgroundColor: event.status === 'cancelled' ? '#fee2e2' :
-                                         event.status === 'completed' ? '#d1fae5' :
-                                         event.status === 'ongoing' ? '#fef3c7' : '#dbeafe',
-                            color: event.status === 'cancelled' ? '#dc2626' :
-                                   event.status === 'completed' ? '#065f46' :
-                                   event.status === 'ongoing' ? '#92400e' : '#1e40af'
-                          }}>
-                            {event.status || 'Upcoming'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                          <button
-                            onClick={() => handleDeleteEvent(event.id)}
-                            style={{
-                              padding: '4px 12px',
-                              backgroundColor: '#dc2626',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '6px',
-                              cursor: 'pointer',
-                              fontSize: '0.8rem'
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </td>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+                    <thead style={{ backgroundColor: 'var(--bg-color)', borderBottom: '1px solid var(--border-color)' }}>
+                      <tr>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Event</th>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Category</th>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Host</th>
+                        <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-color)' }}>Status</th>
+                        <th style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-color)' }}>Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {filteredEvents.map((event) => (
+                        <tr key={event.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                          <td style={{ padding: '12px 16px' }}>
+                            <div>
+                              <strong style={{ color: 'var(--text-color)' }}>{event.title}</strong>
+                              <div style={{ fontSize: '0.8rem', color: 'var(--gray-text)' }}>
+                                {new Date(event.start_date).toLocaleDateString()}
+                              </div>
+                            </div>
+                          </td>
+                          <td style={{ padding: '12px 16px' }}>
+                            <span style={{
+                              display: 'inline-block',
+                              padding: '2px 10px',
+                              borderRadius: '12px',
+                              fontSize: '0.7rem',
+                              fontWeight: '600',
+                              backgroundColor: '#e8f5e9',
+                              color: '#2E7D32'
+                            }}>
+                              {event.category || 'General'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px 16px', color: 'var(--text-color)' }}>
+                            {event.users?.full_name || 'Unknown'}
+                          </td>
+                          <td style={{ padding: '12px 16px' }}>
+                            <span style={{
+                              display: 'inline-block',
+                              padding: '2px 10px',
+                              borderRadius: '12px',
+                              fontSize: '0.7rem',
+                              fontWeight: '600',
+                              backgroundColor: event.status === 'cancelled' ? '#fee2e2' :
+                                             event.status === 'completed' ? '#d1fae5' :
+                                             event.status === 'ongoing' ? '#fef3c7' : '#dbeafe',
+                              color: event.status === 'cancelled' ? '#dc2626' :
+                                     event.status === 'completed' ? '#065f46' :
+                                     event.status === 'ongoing' ? '#92400e' : '#1e40af'
+                            }}>
+                              {event.status || 'Upcoming'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                            <button
+                              onClick={() => handleDeleteEvent(event.id)}
+                              style={{
+                                padding: '4px 12px',
+                                backgroundColor: '#dc2626',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontSize: '0.8rem'
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           )}
@@ -775,8 +838,8 @@ export default function AdminDashboard() {
                         backgroundColor: message.is_read ? 'var(--card-bg)' : 'var(--bg-color)'
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                        <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', flexWrap: 'wrap', gap: '12px' }}>
+                        <div style={{ flex: 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                             <strong style={{ color: 'var(--text-color)' }}>{message.name}</strong>
                             <span style={{ color: 'var(--gray-text)', fontSize: '0.85rem' }}>{message.email}</span>
@@ -840,31 +903,6 @@ export default function AdminDashboard() {
 
         </div>
       </div>
-
-      <footer style={{ background: 'var(--footer-bg)' }}>
-        <div className="container">
-          <div className="footer-content">
-            <div className="footer-left">
-              <span className="name">Alvina Parmar</span>
-              <span className="role">4th Year Computer Science &amp; Engineering Student</span>
-              <span className="role">Developer | Xavier Institute of Engineering</span>
-            </div>
-            <div className="footer-right">
-              <span className="role" style={{ fontSize: '1.05rem', fontWeight: '500' }}>
-                <i className="fas fa-envelope" style={{ color: 'var(--primary-light)', marginRight: '8px' }}></i>
-                <a href="mailto:202304042.alvinakml@student.xavier.ac.in" style={{ color: 'white', textDecoration: 'none' }}>
-                  202304042.alvinakml@student.xavier.ac.in
-                </a>
-              </span>
-              <span style={{ fontSize: '0.85rem', opacity: '0.7' }}>Mahim, Mumbai, Maharashtra 400016</span>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <span>&copy; 2026 Xavier Institute of Engineering Event Portal</span>
-            <span>All rights reserved.</span>
-          </div>
-        </div>
-      </footer>
     </>
   )
 }
