@@ -465,12 +465,7 @@ export default function EventDetail({ params }) {
             </div>
 
             <div style={{ padding: '40px' }}>
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: '1.2fr 0.8fr', 
-                gap: '32px',
-                marginBottom: '32px'
-              }}>
+              <div className="event-info-grid">
                 <div>
                   <h3 style={{ fontWeight: '600', marginBottom: '12px', fontSize: '1.1rem', color: 'var(--text-color)' }}>
                     📝 Description

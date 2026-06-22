@@ -46,6 +46,29 @@ export default function RegisterPage() {
 
       console.log('✅ User created:', data.user.id)
 
+      // ✅ MANUAL FALLBACK: Create profile in public.users
+      // This ensures profile exists even if trigger fails
+      if (data.user) {
+        const { error: insertError } = await supabase
+          .from('users')
+          .upsert({
+            id: data.user.id,
+            full_name: formData.full_name,
+            username: formData.username,
+            department: formData.department || null,
+            year_of_study: parseInt(formData.year_of_study) || null,
+            user_type: 'user',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+        
+        if (insertError) {
+          console.error('⚠️ Manual profile creation failed:', insertError)
+        } else {
+          console.log('✅ Profile created manually in users table')
+        }
+      }
+
       setSuccess(true)
       alert('✅ Registration successful! You can now login.')
       

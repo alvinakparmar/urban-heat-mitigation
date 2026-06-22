@@ -95,7 +95,7 @@ export default function MyEvents() {
           My Events
         </h1>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '32px' }}>
+        <div className="profile-layout-grid">
           <ProfileSidebar user={user} />
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
