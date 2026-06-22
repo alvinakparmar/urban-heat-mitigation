@@ -373,7 +373,7 @@ export default function Home() {
               
               <div className="social-icons">
                 <a 
-                  href="https://www.linkedin.com/in/alvina-parmar-28101391" 
+                  href="https://www.linkedin.com/in/alvina-parmar-281017391" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   aria-label="LinkedIn Profile"

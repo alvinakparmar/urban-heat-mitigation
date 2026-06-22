@@ -182,7 +182,7 @@ export default function EventsPage() {
             }}
           >
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-              <div style={{ flex: '1', minWidth: '280px', position: 'relative' }}>
+              <div style={{ flex: '1', minWidth: '200px', position: 'relative' }}>
                 <input
                   type="text"
                   placeholder="Search events by title, description or venue..."

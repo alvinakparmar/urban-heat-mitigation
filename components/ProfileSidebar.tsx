@@ -21,15 +21,13 @@ export default function ProfileSidebar({ user }: ProfileSidebarProps) {
   // Add null check
   if (!user) {
     return (
-      <div style={{
+      <div className="profile-sidebar" style={{
         backgroundColor: 'var(--card-bg)',
         borderRadius: '16px',
         padding: '24px',
         boxShadow: 'var(--shadow)',
         border: '1px solid var(--border-color)',
         height: 'fit-content',
-        position: 'sticky',
-        top: '120px',
         color: 'var(--text-color)',
         textAlign: 'center'
       }}>
@@ -67,17 +65,16 @@ export default function ProfileSidebar({ user }: ProfileSidebarProps) {
   ]
 
   return (
-    <div style={{
-      backgroundColor: 'var(--card-bg)',
-      borderRadius: '16px',
-      padding: '24px',
-      boxShadow: 'var(--shadow)',
-      border: '1px solid var(--border-color)',
-      height: 'fit-content',
-      position: 'sticky',
-      top: '120px',
-      color: 'var(--text-color)'
-    }}>
+    <>
+      <div className="profile-sidebar" style={{
+        backgroundColor: 'var(--card-bg)',
+        borderRadius: '16px',
+        padding: '24px',
+        boxShadow: 'var(--shadow)',
+        border: '1px solid var(--border-color)',
+        height: 'fit-content',
+        color: 'var(--text-color)'
+      }}>
       {/* User Info Section */}
       <div style={{ 
         textAlign: 'center', 
@@ -172,6 +169,19 @@ export default function ProfileSidebar({ user }: ProfileSidebarProps) {
           )
         })}
       </nav>
-    </div>
+      </div>
+      <style jsx>{`
+        .profile-sidebar {
+          position: sticky;
+          top: 120px;
+          z-index: 10;
+        }
+        @media (max-width: 1024px) {
+          .profile-sidebar {
+            position: static;
+          }
+        }
+      `}</style>
+    </>
   )
 }

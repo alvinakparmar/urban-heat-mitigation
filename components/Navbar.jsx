@@ -178,7 +178,7 @@ export default function Navbar() {
           </>
         )}
 
-        <li className="nav-actions" style={{ marginLeft: '16px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+        <li className="nav-actions" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '10px' }}>
           {user ? (
             <>
               <Link href="/events/create" className="btn-secondary" onClick={closeMenu} style={{ padding: '8px 20px', fontSize: '0.85rem' }}>

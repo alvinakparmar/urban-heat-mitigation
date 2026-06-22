@@ -114,7 +114,7 @@ export default function CreateEvent() {
       <div 
         style={{ 
           minHeight: '100vh', 
-          background: 'linear-gradient(135deg, rgba(245, 245, 220, 0.95), rgba(255, 255, 255, 0.95))',
+          background: 'linear-gradient(135deg, var(--bg-body), var(--bg-section))',
           paddingTop: '130px',
           paddingBottom: '80px',
           display: 'flex',
@@ -124,7 +124,7 @@ export default function CreateEvent() {
       >
         <div className="form-container" style={{ margin: '0', width: '100%', maxWidth: '650px' }}>
           <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <h1 style={{ fontSize: '2.2rem', fontWeight: '800', color: 'var(--primary-dark)' }}>
+            <h1 style={{ fontSize: '2.2rem', fontWeight: '800', color: 'var(--text-primary)' }}>
               <i className="fas fa-calendar-plus" style={{ marginRight: '10px', color: 'var(--primary-light)' }}></i>
               Host a New Event
             </h1>
@@ -301,7 +301,7 @@ export default function CreateEvent() {
                 gap: '16px'
               }}
             >
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', cursor: 'pointer', color: 'var(--text-primary)' }}>
                 <input
                   type="checkbox"
                   name="is_free"
@@ -315,7 +315,7 @@ export default function CreateEvent() {
 
               {!formData.is_free && (
                 <div className="form-group" style={{ marginBottom: '0', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
-                  <label style={{ margin: '0', whiteSpace: 'nowrap' }}>Price (₹) *</label>
+                  <label style={{ margin: '0', whiteSpace: 'nowrap', color: 'var(--text-primary)' }}>Price (₹) *</label>
                   <input
                     type="number"
                     name="price"
@@ -352,7 +352,7 @@ export default function CreateEvent() {
         </div>
       </div>
 
-      <footer style={{ background: 'var(--dark)' }}>
+      <footer>
         <div className="container">
           <div className="footer-content">
             <div className="footer-left">

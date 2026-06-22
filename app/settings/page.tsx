@@ -136,7 +136,7 @@ export default function SettingsPage() {
           Settings
         </h1>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '32px' }}>
+        <div className="profile-layout-grid">
           <ProfileSidebar user={user} />
 
           <div style={{
@@ -167,7 +167,7 @@ export default function SettingsPage() {
             )}
 
             <form onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="profile-info-grid">
                 <div className="form-group">
                   <label style={{ color: 'var(--text-color)' }}>Full Name</label>
                   <input
@@ -313,6 +313,75 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .profile-layout-grid {
+          display: grid;
+          grid-template-columns: 300px 1fr;
+          gap: 32px;
+        }
+
+        .profile-info-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+        }
+
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .form-group label {
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+          padding: 10px 14px;
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          font-size: 1rem;
+          background-color: var(--input-bg);
+          color: var(--text-color);
+          transition: border-color 0.2s;
+          font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+          outline: none;
+          border-color: var(--primary);
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+          color: var(--gray-text);
+          opacity: 0.7;
+        }
+
+        @media (max-width: 1024px) {
+          .profile-layout-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .profile-info-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .profile-layout-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </>
   )
 }
