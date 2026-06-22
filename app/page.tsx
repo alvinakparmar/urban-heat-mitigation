@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import Navbar from '@/components/Navbar'
 
 interface FormData {
@@ -12,6 +13,7 @@ interface FormData {
 }
 
 export default function Home() {
+  const router = useRouter()
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -142,25 +144,6 @@ export default function Home() {
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/events" className="btn-primary">
               <i className="fas fa-calendar-plus" style={{ fontSize: '1.1rem' }}></i> Register Now
-            </Link>
-            {/* ✅ ADMIN LINK - Added to homepage hero */}
-            <Link href="/admin" style={{
-              display: 'inline-block',
-              background: 'rgba(255,255,255,0.15)',
-              color: 'white',
-              padding: '14px 28px',
-              borderRadius: '60px',
-              fontWeight: '600',
-              fontSize: '1.05rem',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              textDecoration: 'none',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-            >
-              ⚙️ Admin
             </Link>
           </div>
         </div>
@@ -463,7 +446,14 @@ export default function Home() {
         <div className="container">
           <div className="footer-content">
             <div className="footer-left">
-              <span className="name">Alvina Parmar</span>
+              <span 
+                className="name" 
+                onDoubleClick={() => router.push('/admin')}
+                style={{ cursor: 'pointer', userSelect: 'none' }}
+                title="Double click for admin access"
+              >
+                Alvina Parmar
+              </span>
               <span className="role">4th Year Computer Science &amp; Engineering Student</span>
               <span className="role">Developer | Xavier Institute of Engineering</span>
             </div>

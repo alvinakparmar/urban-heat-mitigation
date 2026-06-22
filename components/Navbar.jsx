@@ -184,18 +184,7 @@ export default function Navbar() {
               <Link href="/events/create" className="btn-secondary" onClick={closeMenu} style={{ padding: '8px 20px', fontSize: '0.85rem' }}>
                 <i className="fas fa-plus-circle" style={{ marginRight: '6px' }}></i>Host Event
               </Link>
-              <Link href="/admin" onClick={closeMenu} style={{
-                padding: '8px 20px',
-                fontSize: '0.85rem',
-                backgroundColor: '#8b5cf6',
-                color: 'white',
-                borderRadius: '50px',
-                textDecoration: 'none',
-                fontWeight: '600',
-                display: 'inline-block'
-              }}>
-                ⚙️ Admin
-              </Link>
+
               <button 
                 onClick={() => { handleLogout(); closeMenu(); }}
                 className="btn-outline"

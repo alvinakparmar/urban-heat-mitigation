@@ -61,8 +61,8 @@ export async function GET(request) {
 
     console.log('✅ Session set successfully for user:', data?.user?.email)
 
-    // ✅ Redirect to events page
-    return NextResponse.redirect(new URL('/events', requestUrl.origin))
+    // ✅ Redirect to home page
+    return NextResponse.redirect(new URL('/', requestUrl.origin))
 
   } catch (err) {
     console.error('❌ Callback error:', err)
