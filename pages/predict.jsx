@@ -35,7 +35,7 @@ export default function PredictPage() {
 
   // Fetch model health info on mount
   useEffect(() => {
-    axios.get('http://localhost:8000/health')
+    axios.get(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/health`)
       .then(res => setModelInfo(res.data))
       .catch(err => console.warn('Could not fetch model health:', err));
   }, []);
@@ -53,7 +53,7 @@ export default function PredictPage() {
   const handlePredict = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:8000/api/v1/predict', formData);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/v1/predict`, formData);
       setResult(response.data);
     } catch (error) {
       console.error('Prediction error:', error);
@@ -66,7 +66,7 @@ export default function PredictPage() {
   const handleScenario = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:8000/api/v1/scenario', {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/v1/scenario`, {
         lat: 19.0760,
         lng: 72.8777,
         ...formData,

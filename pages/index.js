@@ -321,7 +321,7 @@ export default function Home() {
   const [apiStatus, setApiStatus] = useState('checking');
 
   useEffect(() => {
-    fetch('http://localhost:8000/health')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/health`)
       .then((r) => r.json())
       .then(() => setApiStatus('connected'))
       .catch(() => setApiStatus('disconnected'));

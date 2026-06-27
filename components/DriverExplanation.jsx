@@ -94,7 +94,7 @@ export default function DriverExplanation({ hotspot, onClose }) {
         features.heat_capacity = hotspot.heat_capacity;
       }
 
-      const response = await fetch('http://localhost:8000/api/v1/explain', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/v1/explain`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(features),

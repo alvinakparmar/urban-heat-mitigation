@@ -16,14 +16,14 @@ export default function InterventionsPage() {
 
   // Fetch model health and data source info
   useEffect(() => {
-    axios.get('http://localhost:8000/health')
+    axios.get(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/health`)
       .then(res => setModelInfo(res.data))
       .catch(err => console.warn('Could not fetch model health:', err));
   }, []);
 
   // Fetch hotspots
   useEffect(() => {
-    fetch('http://localhost:8000/api/v1/hotspots')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/v1/hotspots`)
       .then(res => {
         if (!res.ok) {
           throw new Error('Failed to fetch hotspots data');

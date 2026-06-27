@@ -274,6 +274,9 @@ def get_model():
         
         if not os.path.exists(model_path):
             model_path = "./data/models/urban_heat_model.pkl"
+            
+        if not os.path.exists(model_path):
+            model_path = "./backend/data/models/urban_heat_model.pkl"
         
         if os.path.exists(model_path):
             try:
@@ -312,6 +315,7 @@ async def startup_event():
 # ============================================
 
 @app.get("/")
+@app.get("/api")
 async def root():
     return {
         "message": "Urban Heat Mitigation API",
@@ -328,6 +332,7 @@ async def root():
     }
 
 @app.get("/health")
+@app.get("/api/health")
 async def health_check():
     model_instance = get_model()
     model_loaded = True if model_instance and model_instance.is_trained else False

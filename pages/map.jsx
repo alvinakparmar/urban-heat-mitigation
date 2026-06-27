@@ -21,7 +21,7 @@ export default function MapPage() {
 
   useEffect(() => {
     // Fetch initial hotspot points
-    fetch('http://localhost:8000/api/v1/hotspots')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/v1/hotspots`)
       .then(res => {
         if (!res.ok) {
           throw new Error('Failed to fetch data');
@@ -63,8 +63,8 @@ export default function MapPage() {
 
     try {
       const [analysisRes, recRes] = await Promise.all([
-        fetch(`http://localhost:8000/api/v1/analyze-location?lat=${lat}&lng=${lng}`),
-        fetch(`http://localhost:8000/api/v1/recommend-intervention?lat=${lat}&lng=${lng}`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/v1/analyze-location?lat=${lat}&lng=${lng}`),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/v1/recommend-intervention?lat=${lat}&lng=${lng}`)
       ]);
 
       if (!analysisRes.ok || !recRes.ok) {
