@@ -1,0 +1,25 @@
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  swcMinify: false,
+  // Disable SWC completely
+  experimental: {
+    forceSwcTransforms: false,
+  },
+  // Ensure webpack uses babel
+  webpack: (config, { isServer }) => {
+    // Add babel loader for all JS/JSX files
+    config.module.rules.push({
+      test: /\.(js|jsx|ts|tsx)$/,
+      exclude: /node_modules/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: ['next/babel'],
+        },
+      },
+    });
+    return config;
+  },
+}
+
+module.exports = nextConfig

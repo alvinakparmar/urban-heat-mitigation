@@ -1,0 +1,533 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Google Fonts ──────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@700;800;900&display=swap');
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CSS CUSTOM PROPERTIES  –  Yellow theme, Light + Dark modes
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* --- Dark mode (default) --- */
+:root,
+html.dark {
+  --bg-base:      #0c0a09;          /* almost black */
+  --bg-raised:    #1c1917;          /* card background */
+  --bg-overlay:   rgba(28,25,23,0.7);
+  --bg-input:     rgba(28,25,23,0.8);
+
+  --text-primary:  #fafaf9;
+  --text-secondary: #a8a29e;
+  --text-muted:    #78716c;
+
+  --accent:        #f59e0b;         /* amber-500 */
+  --accent-light:  #fbbf24;         /* amber-400 */
+  --accent-dark:   #d97706;         /* amber-600 */
+  --accent-subtle: rgba(245,158,11,0.12);
+  --accent-border: rgba(245,158,11,0.25);
+
+  --border:        rgba(255,255,255,0.08);
+  --border-accent: rgba(245,158,11,0.3);
+
+  --nav-bg:        rgba(12,10,9,0.75);
+  --nav-border:    rgba(245,158,11,0.12);
+  --nav-scrolled:  rgba(12,10,9,0.95);
+
+  --card-shadow:   0 4px 32px rgba(0,0,0,0.4);
+  --glow-color:    rgba(245,158,11,0.25);
+
+  --hero-from:     #1c1917;
+  --hero-mid:      #0c0a09;
+  --hero-to:       #292524;
+
+  --section-alt:   #131211;
+  --badge-bg:      rgba(245,158,11,0.10);
+
+  color-scheme: dark;
+}
+
+/* --- Light mode --- */
+html.light {
+  --bg-base:      #fffbeb;
+  --bg-raised:    #ffffff;
+  --bg-overlay:   rgba(255,255,255,0.75);
+  --bg-input:     rgba(255,255,255,0.9);
+
+  --text-primary:  #1c1917;
+  --text-secondary: #57534e;
+  --text-muted:    #a8a29e;
+
+  --accent:        #d97706;         /* amber-600 – darker for contrast on light */
+  --accent-light:  #f59e0b;
+  --accent-dark:   #b45309;
+  --accent-subtle: rgba(217,119,6,0.10);
+  --accent-border: rgba(217,119,6,0.25);
+
+  --border:        rgba(0,0,0,0.08);
+  --border-accent: rgba(217,119,6,0.3);
+
+  --nav-bg:        rgba(255,251,235,0.85);
+  --nav-border:    rgba(217,119,6,0.15);
+  --nav-scrolled:  rgba(255,251,235,0.97);
+
+  --card-shadow:   0 4px 24px rgba(0,0,0,0.08);
+  --glow-color:    rgba(245,158,11,0.2);
+
+  --hero-from:     #fef3c7;
+  --hero-mid:      #fffbeb;
+  --hero-to:       #fde68a;
+
+  --section-alt:   #fff8e1;
+  --badge-bg:      rgba(217,119,6,0.09);
+
+  color-scheme: light;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BASE
+   ═══════════════════════════════════════════════════════════════════════════ */
+html {
+  scroll-behavior: smooth;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  overflow-x: hidden;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCROLLBAR
+   ═══════════════════════════════════════════════════════════════════════════ */
+::-webkit-scrollbar        { width: 6px; }
+::-webkit-scrollbar-track  { background: var(--bg-raised); }
+::-webkit-scrollbar-thumb  {
+  background: linear-gradient(180deg, var(--accent-light), var(--accent-dark));
+  border-radius: 3px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GRADIENT TEXT
+   ═══════════════════════════════════════════════════════════════════════════ */
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 50%, var(--accent-dark) 100%);
+  background-size: 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientPan 6s ease infinite;
+}
+
+.gradient-text-hero {
+  background: linear-gradient(
+    135deg,
+    var(--text-primary) 0%,
+    var(--accent-light) 40%,
+    var(--accent) 70%,
+    var(--accent-dark) 100%
+  );
+  background-size: 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientPan 8s ease infinite;
+}
+
+@keyframes gradientPan {
+  0%,100% { background-position: 0% 50%; }
+  50%     { background-position: 100% 50%; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HERO BACKGROUND
+   ═══════════════════════════════════════════════════════════════════════════ */
+.hero-bg {
+  background: linear-gradient(-45deg, var(--hero-from), var(--hero-mid), var(--hero-to), var(--hero-from));
+  background-size: 400% 400%;
+  animation: heroPan 16s ease infinite;
+  position: relative;
+}
+
+@keyframes heroPan {
+  0%   { background-position: 0% 50%;   }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%;   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FLOATING PARTICLES
+   ═══════════════════════════════════════════════════════════════════════════ */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.18;
+  will-change: transform;
+}
+.particle-1 {
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  top: 8%; right: 8%;
+  animation: float 9s ease-in-out infinite;
+}
+.particle-2 {
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, var(--accent-dark) 0%, transparent 70%);
+  bottom: 18%; left: 6%;
+  animation: float 7s ease-in-out 1.5s infinite;
+}
+.particle-3 {
+  width: 140px; height: 140px;
+  background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+  top: 45%; left: 42%;
+  animation: float 11s ease-in-out 3s infinite;
+}
+.particle-4 {
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  top: 25%; right: 35%;
+  animation: float 8s ease-in-out 2s infinite;
+}
+.particle-5 {
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, var(--accent-dark) 0%, transparent 70%);
+  bottom: 12%; right: 22%;
+  animation: float 10s ease-in-out 0.5s infinite;
+}
+
+@keyframes float {
+  0%,100% { transform: translateY(0)   translateX(0);  }
+  33%     { transform: translateY(-18px) translateX(8px); }
+  66%     { transform: translateY(8px) translateX(-8px); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HEAT WAVE LINES  (hero bottom decoration)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.heat-wave-container {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 180px;
+  overflow: hidden;
+  opacity: 0.15;
+  pointer-events: none;
+}
+.heat-wave-line {
+  position: absolute;
+  width: 200%; height: 2px;
+  left: -50%;
+}
+.heat-wave-line:nth-child(1) {
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  bottom: 20%;
+  animation: waveSlide 4s ease-in-out infinite;
+}
+.heat-wave-line:nth-child(2) {
+  background: linear-gradient(90deg, transparent, var(--accent-dark), transparent);
+  bottom: 40%;
+  animation: waveSlide 5.5s ease-in-out 0.7s infinite;
+}
+.heat-wave-line:nth-child(3) {
+  background: linear-gradient(90deg, transparent, var(--accent-light), transparent);
+  bottom: 60%;
+  animation: waveSlide 6s ease-in-out 1.4s infinite;
+}
+.heat-wave-line:nth-child(4) {
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  bottom: 80%;
+  animation: waveSlide 4.5s ease-in-out 2s infinite;
+}
+@keyframes waveSlide {
+  0%,100% { transform: translateX(0);   }
+  50%     { transform: translateX(20%); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   NAVBAR
+   ═══════════════════════════════════════════════════════════════════════════ */
+.nav-blur {
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--nav-border);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+.nav-blur.scrolled {
+  background: var(--nav-scrolled);
+  border-bottom-color: var(--border-accent);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   STATUS DOT PULSE
+   ═══════════════════════════════════════════════════════════════════════════ */
+.status-dot { position: relative; display: inline-block; }
+.status-dot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: inherit;
+  animation: dotPulse 2.2s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%,100% { opacity: 0.9; transform: scale(1);   }
+  50%     { opacity: 0;   transform: scale(2.2); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BUTTONS
+   ═══════════════════════════════════════════════════════════════════════════ */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--accent-light), var(--accent), var(--accent-dark));
+  background-size: 200% 200%;
+  color: #1c1917;
+  font-weight: 700;
+  border-radius: 14px;
+  padding: 14px 28px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow), 0 0 30px var(--glow-color);
+  background-position: right center;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  transition: left 0.5s ease;
+}
+.btn-primary:hover::before { left: 100%; }
+
+.btn-secondary {
+  position: relative;
+  overflow: hidden;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-weight: 600;
+  border-radius: 14px;
+  padding: 14px 28px;
+  font-size: 0.95rem;
+  border: 1.5px solid var(--accent-border);
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  background: var(--accent);
+  color: #1c1917;
+  box-shadow: 0 0 24px var(--glow-color);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CARD
+   ═══════════════════════════════════════════════════════════════════════════ */
+.card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.35s cubic-bezier(0.175,0.885,0.32,1.275),
+              border-color 0.3s ease,
+              box-shadow 0.35s ease;
+}
+.card:hover {
+  transform: translateY(-6px) scale(1.015);
+  border-color: var(--accent-border);
+  box-shadow: var(--card-shadow), 0 0 32px var(--glow-color);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   METRIC CARD
+   ═══════════════════════════════════════════════════════════════════════════ */
+.metric-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 36px 28px;
+  text-align: center;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.35s ease, border-color 0.3s ease, box-shadow 0.35s ease;
+}
+.metric-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent-border);
+  box-shadow: var(--card-shadow), 0 0 28px var(--glow-color);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BADGE / CHIP
+   ═══════════════════════════════════════════════════════════════════════════ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--badge-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TRUST BADGES
+   ═══════════════════════════════════════════════════════════════════════════ */
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.25s ease;
+}
+.trust-badge:hover {
+  border-color: var(--accent-border);
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EMAIL INPUT GROUP
+   ═══════════════════════════════════════════════════════════════════════════ */
+.email-input-group {
+  display: flex;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.email-input-group:focus-within {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.12);
+}
+.email-input-group input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  padding: 14px 18px;
+  flex: 1;
+  min-width: 0;
+}
+.email-input-group input::placeholder { color: var(--text-muted); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DASHBOARD CHART PREVIEW
+   ═══════════════════════════════════════════════════════════════════════════ */
+.dashboard-preview {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ICON CONTAINER
+   ═══════════════════════════════════════════════════════════════════════════ */
+.icon-box {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent-border);
+  transition: transform 0.3s ease;
+}
+.card:hover .icon-box { transform: scale(1.1) rotate(-3deg); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION REVEAL ANIMATIONS
+   ═══════════════════════════════════════════════════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.75s cubic-bezier(0.16,1,0.3,1),
+              transform 0.75s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THEME TOGGLE BUTTON
+   ═══════════════════════════════════════════════════════════════════════════ */
+.theme-toggle {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  background: var(--accent);
+  color: #1c1917;
+  transform: scale(1.08);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ANIMATE-FADE-IN-UP  (hero badge)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.animate-fade-up {
+  animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COUNTER
+   ═══════════════════════════════════════════════════════════════════════════ */
+.counter-value {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION DIVIDERS
+   ═══════════════════════════════════════════════════════════════════════════ */
+.section-alt { background: var(--section-alt); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — hide particles & wave on small screens
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .particle             { display: none; }
+  .heat-wave-container  { display: none; }
+}
