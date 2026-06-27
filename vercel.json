@@ -6,7 +6,9 @@
     },
     "backend": {
       "root": "backend",
-      "routePrefix": "/api"
+      "routePrefix": "/api",
+      "entrypoint": "app/main.py",
+      "runtime": "python3.9"
     }
   }
 }
