@@ -1,25 +1,12 @@
 {
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
+  "experimentalServices": {
+    "frontend": {
+      "routePrefix": "/",
+      "framework": "nextjs"
     },
-    {
-      "src": "backend/app/main.py",
-      "use": "@vercel/python"
+    "backend": {
+      "root": "backend",
+      "routePrefix": "/api"
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/app/main.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ],
-  "env": {
-    "PYTHONPATH": "."
   }
 }
