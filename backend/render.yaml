@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: cool-svar-urban
+    runtime: python
+    repo: https://github.com/alvinakparmar/urban-heat-mitigation
+    branch: main
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: MODEL_PATH
+        value: ./data/models/urban_heat_model.pkl

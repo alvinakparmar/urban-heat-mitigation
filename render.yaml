@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: cool-svar-frontend
+    runtime: node
+    repo: https://github.com/alvinakparmar/urban-heat-mitigation
+    branch: main
+    rootDir: ./
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://cool-svar-backend.onrender.com
+
+  - type: web
+    name: cool-svar-backend
+    runtime: python
+    repo: https://github.com/alvinakparmar/urban-heat-mitigation
+    branch: main
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: MODEL_PATH
+        value: ./data/models/urban_heat_model.pkl
