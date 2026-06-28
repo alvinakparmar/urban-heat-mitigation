@@ -103,6 +103,8 @@ def load_csv_data():
         return csv_data
     
     possible_paths = [
+        "./data/mumbai_hotspots.csv",
+        "data/mumbai_hotspots.csv",
         "../public/data/mumbai_hotspots.csv",
         "C:/Users/Administrator/Desktop/urban-heat-mitigation/public/data/mumbai_hotspots.csv",
         "./public/data/mumbai_hotspots.csv"

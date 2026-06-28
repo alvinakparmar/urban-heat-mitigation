@@ -14,6 +14,8 @@ def load_csv_data() -> Optional[pd.DataFrame]:
         return _csv_data
     
     possible_paths = [
+        "./data/mumbai_hotspots.csv",
+        "data/mumbai_hotspots.csv",
         "../public/data/mumbai_hotspots.csv",
         "C:/Users/Administrator/Desktop/urban-heat-mitigation/public/data/mumbai_hotspots.csv",
         "./public/data/mumbai_hotspots.csv",
