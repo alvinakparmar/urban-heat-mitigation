@@ -1,0 +1,39 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Testing
+tests/
+test_*.py
+*_test.py
+run_tests.py
+pytest.ini
+.pytest_cache/
+
+# Dev scripts
+retrain_with_real_data.py
+run.py
+
+# Environment
+.env
+.env.*
+
+# Version control
+.git/
+.gitignore
+
+# Documentation
+*.md
+*.rst
+*.txt.bak
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Render config (not needed on Vercel)
+render.yaml

@@ -1,33 +1,31 @@
 {
-  "functions": {
-    "backend/app/main.py": {
-      "excludeFiles": "{.next,*.cache,node_modules,public,.git,stale_backup,__pycache__,*.pyc}/**"
-    },
-    "api/**": {
-      "excludeFiles": "{.next,*.cache,node_modules,public,.git,stale_backup,__pycache__,*.pyc}/**"
-    }
-  },
+  "version": 2,
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/next"
-    },
-    {
-      "src": "backend/app/main.py",
-      "use": "@vercel/python"
+      "use": "@vercel/next",
+      "config": {
+        "excludeFiles": "{backend/**,**/__pycache__/**,**/*.pyc,**/*.pkl,**/node_modules/**}"
+      }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "backend/app/main.py"
-    },
+      "source": "/api/:path*",
+      "destination": "https://cool-svar-urban.vercel.app/:path*"
+    }
+  ],
+  "headers": [
     {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,DELETE,OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
+      ]
     }
   ],
   "env": {
-    "PYTHONPATH": "backend"
+    "NEXT_PUBLIC_API_URL": "https://cool-svar-urban.vercel.app"
   }
 }

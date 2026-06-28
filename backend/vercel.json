@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app/main.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app/main.py"
+    }
+  ],
+  "functions": {
+    "app/main.py": {
+      "runtime": "python3.9",
+      "maxDuration": 30,
+      "memory": 1024,
+      "excludeFiles": "{**/__pycache__/**,**/*.pyc,**/*.pyo,**/.pytest_cache/**,**/tests/**,**/test_*.py,**/*.md,**/.git/**,**/retrain_with_real_data.py,**/run_tests.py,**/run.py,**/render.yaml}"
+    }
+  },
+  "env": {
+    "PYTHONPATH": ".",
+    "MODEL_PATH": "./data/models"
+  }
+}
