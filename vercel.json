@@ -1,4 +1,12 @@
 {
+  "functions": {
+    "backend/app/main.py": {
+      "excludeFiles": "{.next,*.cache,node_modules,public,.git,stale_backup,__pycache__,*.pyc}/**"
+    },
+    "api/**": {
+      "excludeFiles": "{.next,*.cache,node_modules,public,.git,stale_backup,__pycache__,*.pyc}/**"
+    }
+  },
   "builds": [
     {
       "src": "package.json",
