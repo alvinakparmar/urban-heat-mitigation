@@ -8,7 +8,7 @@ def train_model():
     print("🌆 Training Urban Heat Model...")
     
     # Initialize model
-    model = UrbanHeatModel(model_type='xgboost')
+    model = UrbanHeatModel(model_type='gradient_boosting')
     
     # Train with generated sample data
     metrics = model.train()

@@ -1,15 +1,16 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "app/main.py",
-      "use": "@vercel/python"
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 30,
+      "memory": 1024,
+      "excludeFiles": "**/__pycache__|**/*.pyc|**/*.pyo|**/*.dist-info/**|**/tests/**|**/test_*.py|**/*.pyi|**/examples/**|**/benchmarks/**|**/docs/**|**/*.md|**/*.rst|**/*.txt.bak|**/data/models/__pycache__|**/retrain_with_real_data.py|**/run_tests.py|**/run.py|**/render.yaml|**/.git/**|**/node_modules/**"
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "app/main.py"
+      "source": "/(.*)",
+      "destination": "/api/index.py"
     }
   ]
 }

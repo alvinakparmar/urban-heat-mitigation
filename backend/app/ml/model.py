@@ -1,8 +1,7 @@
 import joblib
-import xgboost as xgb
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
@@ -10,7 +9,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 class UrbanHeatModel:
-    def __init__(self, model_type='xgboost'):
+    def __init__(self, model_type='gradient_boosting'):
         self.model_type = model_type
         self.model = None
         self.scaler = StandardScaler()
@@ -138,23 +137,20 @@ class UrbanHeatModel:
         )
         
         # Choose model
-        if self.model_type == 'xgboost':
-            self.model = xgb.XGBRegressor(
-                n_estimators=300,
+        # 'xgboost' is kept as an alias for backward compatibility
+        if self.model_type in ('xgboost', 'gradient_boosting'):
+            self.model = HistGradientBoostingRegressor(
+                max_iter=300,
                 learning_rate=0.05,
                 max_depth=8,
-                subsample=0.8,
-                colsample_bytree=0.8,
-                random_state=42,
-                **kwargs
+                random_state=42
             )
         else:
             self.model = RandomForestRegressor(
                 n_estimators=300,
                 max_depth=20,
                 min_samples_split=5,
-                random_state=42,
-                **kwargs
+                random_state=42
             )
         
         # Train
