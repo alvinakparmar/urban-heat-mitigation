@@ -8,30 +8,41 @@ from typing import Optional, Dict, Any, List
 _csv_data = None
 
 def load_csv_data() -> Optional[pd.DataFrame]:
-    """Load real hotspot data from CSV file"""
+    """Load real hotspot data from CSV file.
+    
+    Uses __file__-relative paths so it works both locally and on Vercel
+    where the function runs from /var/task/backend/app/.
+    """
     global _csv_data
     if _csv_data is not None:
         return _csv_data
-    
+
+    this_dir = os.path.dirname(os.path.abspath(__file__))
+
     possible_paths = [
-        "./data/mumbai_hotspots.csv",
-        "data/mumbai_hotspots.csv",
-        "../public/data/mumbai_hotspots.csv",
-        "C:/Users/Administrator/Desktop/urban-heat-mitigation/public/data/mumbai_hotspots.csv",
-        "./public/data/mumbai_hotspots.csv",
-        "backend/public/data/mumbai_hotspots.csv"
+        # __file__-relative: backend/app/../../data/mumbai_hotspots.csv
+        os.path.join(this_dir, "..", "data", "mumbai_hotspots.csv"),
+        # __file__-relative via public/
+        os.path.join(this_dir, "..", "..", "public", "data", "mumbai_hotspots.csv"),
+        # Vercel absolute
+        "/var/task/backend/data/mumbai_hotspots.csv",
+        "/var/task/public/data/mumbai_hotspots.csv",
+        # Local dev (cwd = project root)
+        os.path.join(os.getcwd(), "public", "data", "mumbai_hotspots.csv"),
+        os.path.join(os.getcwd(), "backend", "data", "mumbai_hotspots.csv"),
     ]
-    
+
     for path in possible_paths:
-        if os.path.exists(path):
+        abs_path = os.path.abspath(path)
+        if os.path.exists(abs_path):
             try:
-                _csv_data = pd.read_csv(path)
-                print(f"✅ [Analysis] Loaded real data from: {path} ({len(_csv_data)} rows)")
+                _csv_data = pd.read_csv(abs_path)
+                print(f"[Analysis] Loaded {len(_csv_data)} rows from {abs_path}")
                 return _csv_data
             except Exception as e:
-                print(f"⚠️ [Analysis] Error loading CSV: {e}")
-                
-    print("⚠️ [Analysis] No real data found.")
+                print(f"[Analysis] Error loading CSV from {abs_path}: {e}")
+
+    print("[Analysis] CSV not found — analysis functions will return empty results.")
     return None
 
 def extract_coordinates(geo_data: Any) -> tuple[Optional[float], Optional[float]]:

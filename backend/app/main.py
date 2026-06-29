@@ -1,4 +1,4 @@
-﻿from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
@@ -8,10 +8,25 @@ import sys
 import pandas as pd
 import numpy as np
 import json
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# ---------------------------------------------------------------------------
+# Ensure the backend package root is on sys.path so that
+# `from app.ml.model import ...` and `from app.analysis import ...` work
+# regardless of the working directory (critical on Vercel where cwd is
+# /var/task and the package lives under /var/task/backend).
+# ---------------------------------------------------------------------------
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+_BACKEND_ROOT = os.path.dirname(_THIS_DIR)  # backend/
+if _BACKEND_ROOT not in sys.path:
+    sys.path.insert(0, _BACKEND_ROOT)
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv is optional on Vercel
+
+# (dotenv already loaded above)
 
 # Import ML model
 from app.ml.model import UrbanHeatModel
@@ -92,36 +107,51 @@ app.add_middleware(
 )
 
 # ============================================
-# CSV Data Loader - UPDATED WITH MORE PATHS
+# CSV Data Loader — works on Vercel (/var/task/) and locally
 # ============================================
 
 csv_data = None
 
 def load_csv_data():
-    """Load real hotspot data from CSV file"""
+    """Load real hotspot data from CSV file.
+    
+    On Vercel the Python function is deployed to /var/task/backend/app/main.py
+    and the CSV is bundled at /var/task/backend/data/mumbai_hotspots.csv.
+    We use __file__-relative resolution so it works everywhere.
+    """
     global csv_data
     if csv_data is not None:
         return csv_data
-    
-    # ✅ Try public/data first (where it was working)
+
+    this_dir = os.path.dirname(os.path.abspath(__file__))
+
     possible_paths = [
-        "./public/data/mumbai_hotspots.csv",
-        "../public/data/mumbai_hotspots.csv",
-        "public/data/mumbai_hotspots.csv",
-        "./data/mumbai_hotspots.csv",
-        "data/mumbai_hotspots.csv",
+        # __file__-relative: backend/app/../../data/mumbai_hotspots.csv
+        os.path.join(this_dir, "..", "data", "mumbai_hotspots.csv"),
+        # __file__-relative via public/
+        os.path.join(this_dir, "..", "..", "public", "data", "mumbai_hotspots.csv"),
+        # Vercel absolute
+        "/var/task/backend/data/mumbai_hotspots.csv",
+        "/var/task/public/data/mumbai_hotspots.csv",
+        # Local dev (cwd = project root)
+        os.path.join(os.getcwd(), "public", "data", "mumbai_hotspots.csv"),
+        os.path.join(os.getcwd(), "backend", "data", "mumbai_hotspots.csv"),
     ]
-    
+
+    print(f"DEBUG load_csv_data: __file__={__file__}  cwd={os.getcwd()}")
     for path in possible_paths:
-        if os.path.exists(path):
+        abs_path = os.path.abspath(path)
+        exists = os.path.exists(abs_path)
+        print(f"  CSV try: {abs_path} -> {'EXISTS' if exists else 'not found'}")
+        if exists:
             try:
-                csv_data = pd.read_csv(path)
-                print(f"✅ Loaded real data from: {path} ({len(csv_data)} rows)")
+                csv_data = pd.read_csv(abs_path)
+                print(f"  => Loaded {len(csv_data)} rows from {abs_path}")
                 return csv_data
             except Exception as e:
-                print(f"⚠️ Error loading CSV from {path}: {e}")
-    
-    print("⚠️ No real data found. Using ML predictions only.")
+                print(f"  => ERROR reading CSV: {e}")
+
+    print("WARNING: mumbai_hotspots.csv not found — using fallback sample data.")
     return None
 
 def extract_coordinates(geo_data):
@@ -248,7 +278,7 @@ def calculate_shap_values(features: dict, predicted_temp: float) -> dict:
     return shap_values
 
 # ============================================
-# ML Model Loader
+# ML Model Loader — works on Vercel and locally
 # ============================================
 
 model = None
@@ -256,49 +286,58 @@ model = None
 def get_model():
     global model
     if model is None:
-        import os
         import joblib
-        import sys
-        
+
         # Configure output encoding for Windows log outputs
         if hasattr(sys.stdout, 'reconfigure'):
             try:
                 sys.stdout.reconfigure(encoding='utf-8')
-            except:
+            except Exception:
                 pass
-        
-        model_path = "C:/Users/Administrator/Desktop/urban-heat-mitigation/backend/data/models/urban_heat_model.pkl"
-        
-        if not os.path.exists(model_path):
-            model_path = "./data/models/urban_heat_model.pkl"
-            
-        if not os.path.exists(model_path):
-            model_path = "./backend/data/models/urban_heat_model.pkl"
-        
-        if os.path.exists(model_path):
+
+        this_dir = os.path.dirname(os.path.abspath(__file__))
+
+        model_candidates = [
+            # __file__-relative: backend/app/../../data/models/urban_heat_model.pkl
+            os.path.join(this_dir, "..", "data", "models", "urban_heat_model.pkl"),
+            # Vercel absolute
+            "/var/task/backend/data/models/urban_heat_model.pkl",
+            # Local dev (cwd = project root)
+            os.path.join(os.getcwd(), "backend", "data", "models", "urban_heat_model.pkl"),
+            os.path.join(os.getcwd(), "data", "models", "urban_heat_model.pkl"),
+        ]
+
+        model_path = None
+        for candidate in model_candidates:
+            abs_candidate = os.path.abspath(candidate)
+            if os.path.exists(abs_candidate):
+                model_path = abs_candidate
+                break
+
+        if model_path:
             try:
                 model_data = joblib.load(model_path)
-                
+
                 model = UrbanHeatModel()
                 model.load(model_path)
-                
+
                 # Retrieve and attach metadata
                 model.is_real_data = model_data.get('is_real_data', False)
                 model.n_samples = model_data.get('n_samples', 0)
                 model.metrics = model_data.get('metrics', {})
-                
+
                 if model.is_real_data:
                     r2 = model.metrics.get('test_r2', 0.0)
                     rmse = model.metrics.get('rmse', 0.0)
                     print(f"ML model trained on REAL data ({model.n_samples} points) loaded successfully!")
                     print(f"Metrics -> R2: {r2:.4f} | RMSE: {rmse:.4f} C")
                 else:
-                    print(f"ML model loaded successfully from {model_path} (Synthetic/Simulated data)")
+                    print(f"ML model loaded from {model_path} (Synthetic/Simulated data)")
             except Exception as e:
                 print(f"Error loading model from {model_path}: {e}")
                 model = None
         else:
-            print(f"No trained model found at {model_path}")
+            print(f"No trained model found. Tried: {[os.path.abspath(c) for c in model_candidates]}")
     return model
 
 # Load data on startup

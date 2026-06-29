@@ -1,14 +1,7 @@
-# Exclude entire backend — deployed as a separate Vercel project
-backend/
-
 # Python artefacts
 __pycache__/
 *.pyc
 *.pyo
-
-# Model files (served by backend only)
-**/*.pkl
-**/*.joblib
 
 # Render config
 render.yaml
