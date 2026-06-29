@@ -103,42 +103,20 @@ def load_csv_data():
     if csv_data is not None:
         return csv_data
     
-    # Get the current working directory
-    cwd = os.getcwd()
-    print(f"🔍 Current working directory: {cwd}")
-    
-    # List all possible paths
+    # ✅ Try public/data first (where it was working)
     possible_paths = [
-        # Direct paths
         "./public/data/mumbai_hotspots.csv",
+        "../public/data/mumbai_hotspots.csv",
         "public/data/mumbai_hotspots.csv",
         "./data/mumbai_hotspots.csv",
         "data/mumbai_hotspots.csv",
-        "../public/data/mumbai_hotspots.csv",
-        # Absolute path for Vercel
-        "/var/task/public/data/mumbai_hotspots.csv",
-        "/var/task/data/mumbai_hotspots.csv",
-        # Original path
-        "C:/Users/Administrator/Desktop/urban-heat-mitigation/public/data/mumbai_hotspots.csv",
-        # Relative to this file
-        os.path.join(os.path.dirname(__file__), "..", "..", "public", "data", "mumbai_hotspots.csv"),
-        os.path.join(os.path.dirname(__file__), "public", "data", "mumbai_hotspots.csv"),
-        os.path.join(os.path.dirname(__file__), "..", "public", "data", "mumbai_hotspots.csv"),
     ]
     
     for path in possible_paths:
-        print(f"🔍 Checking: {path}")
         if os.path.exists(path):
             try:
                 csv_data = pd.read_csv(path)
                 print(f"✅ Loaded real data from: {path} ({len(csv_data)} rows)")
-                print(f"📋 Columns: {csv_data.columns.tolist()}")
-                
-                # Debug: Print sample of .geo column
-                if '.geo' in csv_data.columns:
-                    sample = csv_data['.geo'].iloc[0]
-                    print(f"📌 Sample .geo data: {str(sample)[:200]}...")
-                
                 return csv_data
             except Exception as e:
                 print(f"⚠️ Error loading CSV from {path}: {e}")
