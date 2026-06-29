@@ -48,16 +48,15 @@ export default function Footer() {
         {/* Brand + credit */}
         <div className="flex flex-col items-center md:items-start gap-1.5">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🌆</span>
             <span
               className="font-black text-base"
               style={{ fontFamily: 'Poppins, Inter, sans-serif', color: 'var(--accent)' }}
             >
-              SVAR
+              SVAR.
             </span>
           </div>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
-            Built with ❤️ for the Hackathon &nbsp;·&nbsp; © {year}
+            © {year} SVAR. All rights reserved.
           </p>
         </div>
 

@@ -59,10 +59,10 @@ export default function Navbar() {
   }, []);
 
   const links = [
-    { href: '#hero',           label: 'Home',            id: 'hero'           },
-    { href: '/map',            label: '🗺️ Map',          id: 'map'            },
-    { href: '/interventions',  label: '🔬 Interventions', id: 'interventions' },
-    { href: '/predict',        label: '🔮 Predict',      id: 'predict'        },
+    { href: '#hero',           label: 'Home',          id: 'hero'           },
+    { href: '/map',            label: 'Map',           id: 'map'            },
+    { href: '/interventions',  label: 'Interventions', id: 'interventions' },
+    { href: '/predict',        label: 'Predict',       id: 'predict'        },
   ];
 
   // Determine active state
@@ -88,12 +88,11 @@ export default function Navbar() {
           {/* ── Logo ─────────────────────────────────────────────────────── */}
           <Link href="/#hero" legacyBehavior>
             <a className="flex items-center gap-2.5 shrink-0" onClick={close}>
-              <span className="text-xl leading-none">🌆</span>
               <span
-                className="font-black text-base tracking-tight hidden sm:block"
+                className="font-black text-base tracking-tight"
                 style={{ fontFamily: 'Poppins, Inter, sans-serif', color: 'var(--accent)' }}
               >
-                SVAR
+                SVAR.
               </span>
             </a>
           </Link>

@@ -76,109 +76,149 @@ function HeroSection({ theme }) {
       aria-labelledby="hero-heading"
       suppressHydrationWarning
     >
-      {/* ─── Live Wallpaper Background ─── */}
-      <div className="absolute inset-0 z-0 overflow-hidden" suppressHydrationWarning>
-        {/* Gradient base */}
+      {/* ─── Live Video & Wallpaper Background ─── */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" suppressHydrationWarning>
+        
+        {/* HTML5 Video Element */}
+        {isDark ? (
+          <video
+            key="dark-video"
+            src="/videos/dark.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+            style={{ filter: 'brightness(0.65)' }}
+          />
+        ) : (
+          <video
+            key="light-video"
+            src="/videos/light.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+            style={{ filter: 'brightness(0.95) contrast(1.02)' }}
+          />
+        )}
+
+        {/* Overlay Gradient (Ensures high text readability) */}
         <div 
-          className="absolute inset-0"
+          className="absolute inset-0 z-10 transition-all duration-1000"
           style={{
             background: isDark 
-              ? 'radial-gradient(ellipse at 50% 50%, #1a1a3e 0%, #0a0a1a 50%, #050510 100%)'
-              : 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%)',
-            transition: 'background 0.5s ease',
+              ? 'linear-gradient(to bottom, rgba(10, 10, 26, 0.4) 0%, rgba(5, 5, 16, 0.85) 100%)'
+              : 'linear-gradient(to bottom, rgba(232, 245, 233, 0.25) 0%, rgba(165, 214, 167, 0.5) 100%)',
           }}
           suppressHydrationWarning
         />
 
-        {/* Animated floating orbs - Dark Mode */}
+        {/* --- DARK MODE OVERLAYS: Galaxy / Starry Night --- */}
         {isDark && (
-          <>
+          <div className="absolute inset-0 z-20 opacity-100 transition-opacity duration-1000" suppressHydrationWarning>
+            {/* Rotating Galaxy Center */}
             <div 
-              className="absolute rounded-full blur-3xl animate-float-1"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[100px] animate-spin-slow opacity-20"
               style={{
-                width: '400px',
-                height: '400px',
-                top: '10%',
-                left: '5%',
-                background: 'radial-gradient(circle, rgba(108,60,225,0.3) 0%, transparent 70%)',
-                animation: 'float1 8s ease-in-out infinite',
+                background: 'conic-gradient(from 0deg, transparent 0%, #6c3ce1 25%, transparent 50%, #4a90e2 75%, transparent 100%)',
+              }}
+              suppressHydrationWarning
+            />
+
+            {/* Nebula Clouds */}
+            <div 
+              className="absolute rounded-full blur-[80px] animate-float-nebula-1"
+              style={{
+                width: '600px', height: '600px', top: '-10%', left: '-10%',
+                background: 'radial-gradient(circle, rgba(108,60,225,0.2) 0%, transparent 70%)',
               }}
               suppressHydrationWarning
             />
             <div 
-              className="absolute rounded-full blur-3xl animate-float-2"
+              className="absolute rounded-full blur-[80px] animate-float-nebula-2"
               style={{
-                width: '500px',
-                height: '500px',
-                bottom: '10%',
-                right: '5%',
-                background: 'radial-gradient(circle, rgba(233,64,95,0.25) 0%, transparent 70%)',
-                animation: 'float2 10s ease-in-out infinite',
+                width: '700px', height: '700px', bottom: '-20%', right: '-10%',
+                background: 'radial-gradient(circle, rgba(74,144,226,0.15) 0%, transparent 70%)',
               }}
               suppressHydrationWarning
             />
-            <div 
-              className="absolute rounded-full blur-3xl animate-float-3"
-              style={{
-                width: '300px',
-                height: '300px',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                background: 'radial-gradient(circle, rgba(255,215,0,0.15) 0%, transparent 70%)',
-                animation: 'float3 12s ease-in-out infinite',
-              }}
-              suppressHydrationWarning
-            />
-            {/* Stars */}
-            {[...Array(150)].map((_, i) => (
+            
+            {/* Twinkling Stars overlaying the video */}
+            {[...Array(80)].map((_, i) => (
               <div
                 key={i}
-                className="absolute rounded-full animate-twinkle"
+                className="absolute rounded-full bg-white animate-twinkle"
                 style={{
                   left: `${Math.random() * 100}%`,
                   top: `${Math.random() * 100}%`,
-                  width: `${Math.random() * 3 + 1}px`,
-                  height: `${Math.random() * 3 + 1}px`,
-                  background: 'white',
+                  width: `${Math.random() * 2 + 1}px`,
+                  height: `${Math.random() * 2 + 1}px`,
                   animationDelay: `${Math.random() * 5}s`,
                   animationDuration: `${Math.random() * 3 + 2}s`,
                 }}
                 suppressHydrationWarning
               />
             ))}
-            {/* Shooting stars */}
+
+            {/* Shooting Stars */}
             <div className="absolute animate-shooting-star" style={{ top: '15%', left: '10%', animationDelay: '2s' }} suppressHydrationWarning>
-              <div className="w-1 h-1 bg-white rounded-full shadow-[0_0_10px_2px_rgba(255,255,255,0.5)]" />
-              <div className="absolute top-0 left-0 w-20 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent rotate-[-30deg] origin-left" />
+              <div className="w-1 h-1 bg-white rounded-full shadow-[0_0_10px_2px_rgba(255,255,255,0.8)]" />
+              <div className="absolute top-0 left-0 w-24 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent rotate-[-30deg] origin-left" />
             </div>
-            <div className="absolute animate-shooting-star" style={{ top: '30%', right: '15%', animationDelay: '5s' }} suppressHydrationWarning>
-              <div className="w-1 h-1 bg-white rounded-full shadow-[0_0_10px_2px_rgba(255,255,255,0.5)]" />
-              <div className="absolute top-0 left-0 w-20 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent rotate-[-30deg] origin-left" />
+            <div className="absolute animate-shooting-star" style={{ top: '30%', right: '15%', animationDelay: '7s' }} suppressHydrationWarning>
+              <div className="w-1 h-1 bg-white rounded-full shadow-[0_0_10px_2px_rgba(255,255,255,0.8)]" />
+              <div className="absolute top-0 left-0 w-32 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent rotate-[-30deg] origin-left" />
             </div>
-          </>
+          </div>
         )}
 
-        {/* Floating particles - Light Mode */}
+        {/* --- LIGHT MODE OVERLAYS: Breezy Green Day --- */}
         {!isDark && (
-          <>
-            {[...Array(20)].map((_, i) => (
+          <div className="absolute inset-0 z-20 opacity-100 transition-opacity duration-1000" suppressHydrationWarning>
+            {/* Soft Green Shifting Gradients overlaying the video */}
+            <div 
+              className="absolute inset-0 opacity-20 animate-gradient-shift mix-blend-overlay"
+              style={{
+                background: 'linear-gradient(120deg, #81c784, #aed581, #fff59d, #4db6ac)',
+                backgroundSize: '300% 300%'
+              }}
+              suppressHydrationWarning
+            />
+
+            {/* Sunlight Rays */}
+            <div className="absolute top-[-20%] left-[-10%] w-[150%] h-[150%] animate-sun-rays opacity-15 pointer-events-none"
+                 style={{
+                   background: 'radial-gradient(circle at 20% 0%, rgba(255,255,255,0.8) 0%, transparent 45%)',
+                   transformOrigin: '20% 0%'
+                 }}
+                 suppressHydrationWarning
+            />
+
+            {/* Moving Clouds */}
+            <div className="absolute top-[10%] left-[-20%] w-[300px] h-[100px] bg-white rounded-full opacity-40 blur-3xl animate-cloud-1" suppressHydrationWarning />
+            <div className="absolute top-[30%] left-[-10%] w-[400px] h-[120px] bg-white rounded-full opacity-30 blur-3xl animate-cloud-2" suppressHydrationWarning />
+            <div className="absolute top-[15%] left-[-30%] w-[250px] h-[80px] bg-white rounded-full opacity-35 blur-3xl animate-cloud-3" suppressHydrationWarning />
+
+            {/* Floating Leaves drifting down over the video */}
+            {[...Array(15)].map((_, i) => (
               <div
                 key={i}
-                className="absolute rounded-full animate-float-particle"
+                className="absolute w-3 h-3 animate-falling-leaf"
                 style={{
                   left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  width: `${Math.random() * 20 + 10}px`,
-                  height: `${Math.random() * 20 + 10}px`,
-                  background: `rgba(46,125,50,${Math.random() * 0.08 + 0.02})`,
-                  animationDelay: `${Math.random() * 10}s`,
-                  animationDuration: `${Math.random() * 15 + 10}s`,
+                  top: `-5%`,
+                  background: Math.random() > 0.5 ? '#4caf50' : '#81c784',
+                  borderRadius: '0 50% 0 50%',
+                  opacity: Math.random() * 0.4 + 0.2,
+                  animationDelay: `${Math.random() * 15}s`,
+                  animationDuration: `${Math.random() * 8 + 7}s`,
                 }}
                 suppressHydrationWarning
               />
             ))}
-          </>
+          </div>
         )}
       </div>
 
@@ -191,7 +231,9 @@ function HeroSection({ theme }) {
           fontSize: 'clamp(2.2rem, 5.5vw, 4.5rem)',
           maxWidth: '860px',
           color: isDark ? '#FFFFFF' : '#1a1a2e',
-          textShadow: isDark ? '0 0 60px rgba(108,60,225,0.3)' : 'none',
+          textShadow: isDark 
+            ? '0 4px 30px rgba(0,0,0,0.8), 0 0 40px rgba(108,60,225,0.4)' 
+            : '0 2px 20px rgba(255,255,255,0.9), 0 0 10px rgba(255,255,255,0.5)',
         }}
         suppressHydrationWarning
       >
@@ -202,8 +244,11 @@ function HeroSection({ theme }) {
       <p
         className="mb-10 max-w-xl leading-relaxed z-10"
         style={{
-          color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)',
+          color: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.75)',
           fontSize: 'clamp(1rem, 2.2vw, 1.2rem)',
+          textShadow: isDark 
+            ? '0 2px 15px rgba(0,0,0,0.8)' 
+            : '0 2px 15px rgba(255,255,255,0.9)',
         }}
         suppressHydrationWarning
       >
@@ -212,42 +257,68 @@ function HeroSection({ theme }) {
 
       {/* Animation Styles */}
       <style jsx>{`
-        @keyframes float1 {
+        @keyframes float-nebula-1 {
           0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(40px, -30px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
+          50% { transform: translate(50px, -30px) scale(1.1); }
         }
-        @keyframes float2 {
+        @keyframes float-nebula-2 {
           0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(-30px, 40px) scale(1.15); }
-          66% { transform: translate(20px, -20px) scale(0.85); }
-        }
-        @keyframes float3 {
-          0%, 100% { transform: translate(-50%, -50%) scale(1); }
-          50% { transform: translate(-50%, -50%) scale(1.3); }
+          50% { transform: translate(-40px, 40px) scale(1.15); }
         }
         @keyframes twinkle {
-          0% { opacity: 0.2; transform: scale(0.8); }
-          100% { opacity: 1; transform: scale(1.2); }
+          0%, 100% { opacity: 0.2; transform: scale(0.8); }
+          50% { opacity: 1; transform: scale(1.2); }
         }
         @keyframes shooting-star {
           0% { transform: translateX(0) translateY(0) rotate(-30deg); opacity: 0; }
-          5% { opacity: 1; }
-          20% { transform: translateX(-200px) translateY(100px) rotate(-30deg); opacity: 0; }
+          10% { opacity: 1; }
+          20% { transform: translateX(-300px) translateY(150px) rotate(-30deg); opacity: 0; }
           100% { opacity: 0; }
         }
-        @keyframes float-particle {
-          0% { transform: translate(0, 0) scale(1); opacity: 0; }
-          20% { opacity: 1; }
-          80% { opacity: 1; }
-          100% { transform: translate(${Math.random() * 200 - 100}px, ${Math.random() * 200 - 100}px) scale(0.5); opacity: 0; }
+        @keyframes spin-slow {
+          from { transform: translate(-50%, -50%) rotate(0deg); }
+          to { transform: translate(-50%, -50%) rotate(360deg); }
         }
-        .animate-shooting-star {
-          animation: shooting-star 6s ease-in-out infinite;
+        @keyframes gradient-shift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
         }
-        .animate-float-particle {
-          animation: float-particle 20s ease-in-out infinite;
+        @keyframes sun-rays {
+          0%, 100% { transform: rotate(0deg) scale(1); opacity: 0.2; }
+          50% { transform: rotate(5deg) scale(1.05); opacity: 0.3; }
         }
+        @keyframes cloud-1 {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(120vw); }
+        }
+        @keyframes cloud-2 {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(120vw); }
+        }
+        @keyframes cloud-3 {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(120vw); }
+        }
+        @keyframes falling-leaf {
+          0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translate(100px, 110vh) rotate(360deg); opacity: 0; }
+        }
+
+        .animate-float-nebula-1 { animation: float-nebula-1 15s ease-in-out infinite; }
+        .animate-float-nebula-2 { animation: float-nebula-2 18s ease-in-out infinite; }
+        .animate-twinkle { animation: twinkle 3s ease-in-out infinite; }
+        .animate-shooting-star { animation: shooting-star 8s linear infinite; }
+        .animate-spin-slow { animation: spin-slow 40s linear infinite; }
+        
+        .animate-gradient-shift { animation: gradient-shift 15s ease infinite; }
+        .animate-sun-rays { animation: sun-rays 10s ease-in-out infinite; }
+        .animate-cloud-1 { animation: cloud-1 40s linear infinite; }
+        .animate-cloud-2 { animation: cloud-2 60s linear infinite; animation-delay: -20s; }
+        .animate-cloud-3 { animation: cloud-3 50s linear infinite; animation-delay: -10s; }
+        .animate-falling-leaf { animation: falling-leaf 10s linear infinite; }
       `}</style>
     </section>
   );
