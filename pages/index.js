@@ -83,7 +83,7 @@ function HeroSection({ theme }) {
         {isDark ? (
           <video
             key="dark-video"
-            src="/videos/dark.mp4"
+            src="https://res.cloudinary.com/dvgitcbce/video/upload/v1782729892/dark_svbw10.mp4"
             autoPlay
             loop
             muted
@@ -94,7 +94,7 @@ function HeroSection({ theme }) {
         ) : (
           <video
             key="light-video"
-            src="/videos/light.mp4"
+            src="https://res.cloudinary.com/dvgitcbce/video/upload/v1782729978/light_ejcqgd.mp4"
             autoPlay
             loop
             muted
@@ -228,6 +228,7 @@ function HeroSection({ theme }) {
         className="font-black leading-tight mb-5 z-10"
         style={{
           fontFamily: 'Poppins, Inter, sans-serif',
+          fontWeight: 900,
           fontSize: 'clamp(2.2rem, 5.5vw, 4.5rem)',
           maxWidth: '860px',
           color: isDark ? '#FFFFFF' : '#1a1a2e',
