@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: cool-svar-frontend
+    name: cool-mumbai-frontend
     runtime: node
     repo: https://github.com/alvinakparmar/urban-heat-mitigation
     branch: main
@@ -9,10 +9,10 @@ services:
     startCommand: npm start
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        value: https://cool-svar-backend.onrender.com
+        value: https://cool-mumbai-backend.onrender.com
 
   - type: web
-    name: cool-svar-backend
+    name: cool-mumbai-backend
     runtime: python
     repo: https://github.com/alvinakparmar/urban-heat-mitigation
     branch: main

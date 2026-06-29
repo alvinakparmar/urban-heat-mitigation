@@ -92,7 +92,7 @@ export default function Navbar() {
                 className="font-black text-base tracking-tight"
                 style={{ fontFamily: 'Poppins, Inter, sans-serif', color: 'var(--accent)' }}
               >
-                SVAR.
+                COOL MUMBAI
               </span>
             </a>
           </Link>

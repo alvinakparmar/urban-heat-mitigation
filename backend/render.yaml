@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: cool-svar-urban
+    name: cool-mumbai-urban
     runtime: python
     repo: https://github.com/alvinakparmar/urban-heat-mitigation
     branch: main
