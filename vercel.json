@@ -3,29 +3,24 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/next",
-      "config": {
-        "excludeFiles": "{backend/**,**/__pycache__/**,**/*.pyc,**/*.pkl,**/node_modules/**}"
-      }
+      "use": "@vercel/next"
+    },
+    {
+      "src": "backend/app/main.py",
+      "use": "@vercel/python"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/:path*",
-      "destination": "https://cool-svar-urban.vercel.app/:path*"
-    }
-  ],
-  "headers": [
+      "src": "/api/(.*)",
+      "dest": "backend/app/main.py"
+    },
     {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,DELETE,OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
-      ]
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ],
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://cool-svar-urban.vercel.app"
+    "NEXT_PUBLIC_API_URL": "https://cool-svar.vercel.app"
   }
 }
