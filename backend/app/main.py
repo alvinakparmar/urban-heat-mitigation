@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 import uvicorn
 import os
+import sys
 import pandas as pd
 import numpy as np
 import json
@@ -91,7 +92,7 @@ app.add_middleware(
 )
 
 # ============================================
-# CSV Data Loader
+# CSV Data Loader - UPDATED WITH MORE PATHS
 # ============================================
 
 csv_data = None
@@ -102,15 +103,31 @@ def load_csv_data():
     if csv_data is not None:
         return csv_data
     
+    # Get the current working directory
+    cwd = os.getcwd()
+    print(f"🔍 Current working directory: {cwd}")
+    
+    # List all possible paths
     possible_paths = [
+        # Direct paths
+        "./public/data/mumbai_hotspots.csv",
+        "public/data/mumbai_hotspots.csv",
         "./data/mumbai_hotspots.csv",
         "data/mumbai_hotspots.csv",
         "../public/data/mumbai_hotspots.csv",
+        # Absolute path for Vercel
+        "/var/task/public/data/mumbai_hotspots.csv",
+        "/var/task/data/mumbai_hotspots.csv",
+        # Original path
         "C:/Users/Administrator/Desktop/urban-heat-mitigation/public/data/mumbai_hotspots.csv",
-        "./public/data/mumbai_hotspots.csv"
+        # Relative to this file
+        os.path.join(os.path.dirname(__file__), "..", "..", "public", "data", "mumbai_hotspots.csv"),
+        os.path.join(os.path.dirname(__file__), "public", "data", "mumbai_hotspots.csv"),
+        os.path.join(os.path.dirname(__file__), "..", "public", "data", "mumbai_hotspots.csv"),
     ]
     
     for path in possible_paths:
+        print(f"🔍 Checking: {path}")
         if os.path.exists(path):
             try:
                 csv_data = pd.read_csv(path)
@@ -124,7 +141,7 @@ def load_csv_data():
                 
                 return csv_data
             except Exception as e:
-                print(f"⚠️ Error loading CSV: {e}")
+                print(f"⚠️ Error loading CSV from {path}: {e}")
     
     print("⚠️ No real data found. Using ML predictions only.")
     return None
