@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+﻿from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
@@ -384,7 +384,7 @@ async def api_info():
     }
 
 # ============================================
-# Prediction Endpoint
+# Prediction Endpoint - FIXED
 # ============================================
 
 @app.post("/api/v1/predict", response_model=PredictionResponse)
@@ -407,9 +407,17 @@ async def predict_temperature(request: PredictionRequest):
         
         temperature = model.predict_single(features)
         
+        # ✅ FIX: Get feature importance correctly
+        feature_importance = {}
+        if hasattr(model, 'feature_names') and model.feature_names:
+            if hasattr(model.model, 'feature_importances_'):
+                importances = model.model.feature_importances_
+                if len(importances) == len(model.feature_names):
+                    feature_importance = dict(zip(model.feature_names, importances.tolist()))
+        
         return PredictionResponse(
             temperature=round(temperature, 2),
-            feature_importance=model._get_feature_importance() if model.feature_names else None,
+            feature_importance=feature_importance if feature_importance else None,
             data_source="ML Model"
         )
     

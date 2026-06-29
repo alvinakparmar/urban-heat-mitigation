@@ -1,12 +1,12 @@
 import Head from 'next/head';
-import Link from 'next/link';  // ← Add this line
+import Link from 'next/link';
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   HOOK: useReveal  — fires once when element enters viewport
+   HOOK: useReveal
 ───────────────────────────────────────────────────────────────────────────── */
 function useReveal(threshold = 0.2) {
-  const ref     = useRef(null);
+  const ref = useRef(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -23,9 +23,6 @@ function useReveal(threshold = 0.2) {
   return [ref, visible];
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   COMPONENT: RevealOnScroll
-───────────────────────────────────────────────────────────────────────────── */
 function Reveal({ children, delay = 0, style = {} }) {
   const [ref, visible] = useReveal();
   return (
@@ -39,13 +36,10 @@ function Reveal({ children, delay = 0, style = {} }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   COMPONENT: AnimatedCounter
-───────────────────────────────────────────────────────────────────────────── */
 function Counter({ to, suffix = '', decimals = 0, duration = 2000 }) {
-  const [val, setVal]       = useState(0);
+  const [val, setVal] = useState(0);
   const [started, setStart] = useState(false);
-  const [ref, visible]      = useReveal(0.3);
+  const [ref, visible] = useReveal(0.3);
 
   useEffect(() => { if (visible) setStart(true); }, [visible]);
 
@@ -54,7 +48,7 @@ function Counter({ to, suffix = '', decimals = 0, duration = 2000 }) {
     const t0 = performance.now();
     const tick = (now) => {
       const p = Math.min((now - t0) / duration, 1);
-      const e = 1 - Math.pow(1 - p, 3); // ease-out cubic
+      const e = 1 - Math.pow(1 - p, 3);
       setVal(parseFloat((e * to).toFixed(decimals)));
       if (p < 1) requestAnimationFrame(tick);
     };
@@ -70,188 +64,399 @@ function Counter({ to, suffix = '', decimals = 0, duration = 2000 }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   SECTION 1: HERO
+   SECTION 1: HERO - Live Wallpaper Background
 ───────────────────────────────────────────────────────────────────────────── */
-function HeroSection({ apiStatus }) {
-  const statusColor =
-    apiStatus === 'connected'    ? '#22c55e' :
-    apiStatus === 'disconnected' ? '#ef4444' : '#a8a29e';
-  const statusLabel =
-    apiStatus === 'connected'    ? 'Systems Online'  :
-    apiStatus === 'disconnected' ? 'Backend Offline' : 'Connecting…';
+function HeroSection({ theme }) {
+  const isDark = theme === 'dark';
 
   return (
     <section
       id="hero"
-      className="hero-bg relative flex flex-col items-center justify-center min-h-screen text-center px-4 pt-20 pb-20 overflow-hidden"
+      className="relative flex flex-col items-center justify-center min-h-screen text-center px-4 pt-20 pb-20 overflow-hidden"
       aria-labelledby="hero-heading"
+      suppressHydrationWarning
     >
-      {/* Decorative particles */}
-      {[1,2,3,4,5].map((n) => (
-        <div key={n} className={`particle particle-${n}`} aria-hidden="true" />
-      ))}
-      {/* Heat wave lines */}
-      <div className="heat-wave-container" aria-hidden="true">
-        {[1,2,3,4].map((n) => <div key={n} className="heat-wave-line" />)}
-      </div>
+      {/* ─── Live Wallpaper Background ─── */}
+      <div className="absolute inset-0 z-0 overflow-hidden" suppressHydrationWarning>
+        {/* Gradient base */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: isDark 
+              ? 'radial-gradient(ellipse at 50% 50%, #1a1a3e 0%, #0a0a1a 50%, #050510 100%)'
+              : 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%)',
+            transition: 'background 0.5s ease',
+          }}
+          suppressHydrationWarning
+        />
 
-      {/* Status badge */}
-      <div
-        className="animate-fade-up inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-8"
-        style={{
-          background: 'var(--badge-bg)',
-          border: '1px solid var(--accent-border)',
-          color: statusColor,
-          animationDelay: '0.1s',
-        }}
-        aria-live="polite"
-        id="hero-status-badge"
-      >
-        <span className="status-dot w-2 h-2 rounded-full" style={{ background: statusColor }} />
-        {statusLabel}
+        {/* Animated floating orbs - Dark Mode */}
+        {isDark && (
+          <>
+            <div 
+              className="absolute rounded-full blur-3xl animate-float-1"
+              style={{
+                width: '400px',
+                height: '400px',
+                top: '10%',
+                left: '5%',
+                background: 'radial-gradient(circle, rgba(108,60,225,0.3) 0%, transparent 70%)',
+                animation: 'float1 8s ease-in-out infinite',
+              }}
+              suppressHydrationWarning
+            />
+            <div 
+              className="absolute rounded-full blur-3xl animate-float-2"
+              style={{
+                width: '500px',
+                height: '500px',
+                bottom: '10%',
+                right: '5%',
+                background: 'radial-gradient(circle, rgba(233,64,95,0.25) 0%, transparent 70%)',
+                animation: 'float2 10s ease-in-out infinite',
+              }}
+              suppressHydrationWarning
+            />
+            <div 
+              className="absolute rounded-full blur-3xl animate-float-3"
+              style={{
+                width: '300px',
+                height: '300px',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                background: 'radial-gradient(circle, rgba(255,215,0,0.15) 0%, transparent 70%)',
+                animation: 'float3 12s ease-in-out infinite',
+              }}
+              suppressHydrationWarning
+            />
+            {/* Stars */}
+            {[...Array(150)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full animate-twinkle"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  width: `${Math.random() * 3 + 1}px`,
+                  height: `${Math.random() * 3 + 1}px`,
+                  background: 'white',
+                  animationDelay: `${Math.random() * 5}s`,
+                  animationDuration: `${Math.random() * 3 + 2}s`,
+                }}
+                suppressHydrationWarning
+              />
+            ))}
+            {/* Shooting stars */}
+            <div className="absolute animate-shooting-star" style={{ top: '15%', left: '10%', animationDelay: '2s' }} suppressHydrationWarning>
+              <div className="w-1 h-1 bg-white rounded-full shadow-[0_0_10px_2px_rgba(255,255,255,0.5)]" />
+              <div className="absolute top-0 left-0 w-20 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent rotate-[-30deg] origin-left" />
+            </div>
+            <div className="absolute animate-shooting-star" style={{ top: '30%', right: '15%', animationDelay: '5s' }} suppressHydrationWarning>
+              <div className="w-1 h-1 bg-white rounded-full shadow-[0_0_10px_2px_rgba(255,255,255,0.5)]" />
+              <div className="absolute top-0 left-0 w-20 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent rotate-[-30deg] origin-left" />
+            </div>
+          </>
+        )}
+
+        {/* Floating particles - Light Mode */}
+        {!isDark && (
+          <>
+            {[...Array(20)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full animate-float-particle"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  width: `${Math.random() * 20 + 10}px`,
+                  height: `${Math.random() * 20 + 10}px`,
+                  background: `rgba(46,125,50,${Math.random() * 0.08 + 0.02})`,
+                  animationDelay: `${Math.random() * 10}s`,
+                  animationDuration: `${Math.random() * 15 + 10}s`,
+                }}
+                suppressHydrationWarning
+              />
+            ))}
+          </>
+        )}
       </div>
 
       {/* Heading */}
       <h1
         id="hero-heading"
-        className="gradient-text-hero font-black leading-tight mb-5"
+        className="font-black leading-tight mb-5 z-10"
         style={{
           fontFamily: 'Poppins, Inter, sans-serif',
           fontSize: 'clamp(2.2rem, 5.5vw, 4.5rem)',
           maxWidth: '860px',
+          color: isDark ? '#FFFFFF' : '#1a1a2e',
+          textShadow: isDark ? '0 0 60px rgba(108,60,225,0.3)' : 'none',
         }}
+        suppressHydrationWarning
       >
-        🌆 Urban Heat Mitigation System
+        Cool Mumbai
       </h1>
 
       {/* Subheading */}
       <p
-        className="mb-10 max-w-xl leading-relaxed"
+        className="mb-10 max-w-xl leading-relaxed z-10"
         style={{
-          color: 'var(--text-secondary)',
+          color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)',
           fontSize: 'clamp(1rem, 2.2vw, 1.2rem)',
         }}
+        suppressHydrationWarning
       >
-        AI-Powered Solutions for Cooler, Sustainable Cities
+        AI-Powered Heat Mitigation for India's Financial Capital
       </p>
 
-      {/* CTA buttons */}
-      <div className="flex flex-col sm:flex-row gap-3 items-center">
-        <a href="#features" className="btn-primary" id="hero-explore-btn">
-          Explore Solutions
-          <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </a>
-        <Link href="/map" legacyBehavior>
-  <a className="btn-secondary" id="hero-map-btn">
-    View Live Map
-    <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-    </svg>
-  </a>
-</Link>
-      </div>
+      {/* Animation Styles */}
+      <style jsx>{`
+        @keyframes float1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(40px, -30px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+        @keyframes float2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(-30px, 40px) scale(1.15); }
+          66% { transform: translate(20px, -20px) scale(0.85); }
+        }
+        @keyframes float3 {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); }
+          50% { transform: translate(-50%, -50%) scale(1.3); }
+        }
+        @keyframes twinkle {
+          0% { opacity: 0.2; transform: scale(0.8); }
+          100% { opacity: 1; transform: scale(1.2); }
+        }
+        @keyframes shooting-star {
+          0% { transform: translateX(0) translateY(0) rotate(-30deg); opacity: 0; }
+          5% { opacity: 1; }
+          20% { transform: translateX(-200px) translateY(100px) rotate(-30deg); opacity: 0; }
+          100% { opacity: 0; }
+        }
+        @keyframes float-particle {
+          0% { transform: translate(0, 0) scale(1); opacity: 0; }
+          20% { opacity: 1; }
+          80% { opacity: 1; }
+          100% { transform: translate(${Math.random() * 200 - 100}px, ${Math.random() * 200 - 100}px) scale(0.5); opacity: 0; }
+        }
+        .animate-shooting-star {
+          animation: shooting-star 6s ease-in-out infinite;
+        }
+        .animate-float-particle {
+          animation: float-particle 20s ease-in-out infinite;
+        }
+      `}</style>
+    </section>
+  );
+}
 
-      {/* Scroll cue */}
-      <div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1"
-        style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}
-        aria-hidden="true"
-      >
-        <svg
-          className="animate-bounce-soft"
-          width="18" height="18"
-          fill="none" stroke="currentColor" strokeWidth="2"
-          viewBox="0 0 24 24"
-          style={{ animation: 'bounceSoft 2s ease-in-out infinite', color: 'var(--accent)' }}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
-        scroll
+// ... rest of your components (MetricsSection, FeaturesSection, CTASection) remain the same
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 2: METRICS
+───────────────────────────────────────────────────────────────────────────── */
+const METRICS = [
+  { id: 'city',   to: 1,  suffix: '', label: '📍 Mumbai Metropolitan Region',   sub: 'India\'s Financial Capital',     emoji: '🌆' },
+  { id: 'hotspots', to: 250, suffix: '+',  label: 'Heat Hotspots Identified',       sub: 'Across Mumbai',     emoji: '🌡️' },
+  { id: 'temp',     to: 2.5,  suffix: '°C', decimals: 1, label: 'Cooling Possible', sub: 'with smart interventions', emoji: '❄️' },
+];
+
+function MetricsSection({ theme }) {
+  const isDark = theme === 'dark';
+
+  return (
+    <section
+      id="metrics"
+      className="py-24 px-4"
+      style={{
+        background: isDark 
+          ? 'linear-gradient(180deg, #0f0c29, #1B2735)'
+          : 'linear-gradient(180deg, #e8f5e9, #f1f8e9)',
+        transition: 'background 0.5s ease',
+      }}
+    >
+      <div className="max-w-6xl mx-auto">
+
+        <Reveal>
+          <div className="text-center mb-14">
+            <span className="badge mb-4" style={{
+              background: isDark ? 'rgba(255,215,0,0.1)' : 'rgba(46,125,50,0.1)',
+              border: isDark ? '1px solid rgba(255,215,0,0.2)' : '1px solid rgba(46,125,50,0.2)',
+              color: isDark ? '#FFD93D' : '#2e7d32',
+              padding: '6px 16px',
+              borderRadius: '999px',
+              fontSize: '0.75rem',
+              fontWeight: '600',
+            }}>📊 Mumbai in Numbers</span>
+            <h2
+              id="metrics-heading"
+              className="font-black leading-tight mb-4"
+              style={{
+                fontFamily: 'Poppins, Inter, sans-serif',
+                fontSize: 'clamp(1.8rem, 3.5vw, 3rem)',
+                color: isDark ? '#FFFFFF' : '#1a1a2e',
+              }}
+            >
+              Mumbai's Urban Heat Story
+            </h2>
+            <p style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)', fontSize: '1rem', lineHeight: '1.7' }}>
+              Real data from NASA and Yale satellites
+            </p>
+          </div>
+        </Reveal>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-12">
+          {METRICS.map(({ id, to, suffix, decimals, label, sub, emoji }, i) => (
+            <Reveal key={id} delay={i * 110}>
+              <div className="metric-card" style={{
+                background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.8)',
+                backdropFilter: 'blur(10px)',
+                border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)',
+                borderRadius: '20px',
+                padding: '36px 28px',
+                textAlign: 'center',
+                boxShadow: isDark 
+                  ? '0 8px 32px rgba(0,0,0,0.3)'
+                  : '0 8px 32px rgba(0,0,0,0.05)',
+                transition: 'all 0.3s ease',
+              }}>
+                <div className="text-3xl mb-3" aria-hidden="true">{emoji}</div>
+                <div
+                  className="font-black mb-1"
+                  style={{
+                    fontFamily: 'Poppins, sans-serif',
+                    fontSize: 'clamp(2.4rem, 4vw, 3.25rem)',
+                    color: isDark ? '#FFD93D' : '#2e7d32',
+                  }}
+                >
+                  <Counter to={to} suffix={suffix} decimals={decimals || 0} duration={2000} />
+                </div>
+                <div className="font-semibold mb-1" style={{ color: isDark ? '#FFFFFF' : '#1a1a2e', fontSize: '1rem' }}>
+                  {label}
+                </div>
+                <div style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)', fontSize: '0.8rem' }}>{sub}</div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   SECTION 2: FEATURES  ("How It Works")
+   SECTION 3: FEATURES
 ───────────────────────────────────────────────────────────────────────────── */
 const FEATURES = [
   {
     id: 'heat-detection',
-    emoji: '🛰️',
-    title: 'Heat Detection',
-    description:
-      'Satellite imagery and ground-level sensors identify urban heat island hotspots at 10 m resolution, refreshed every 6 hours.',
-    stat: '10 m · 6 hr',
+    emoji: '🗺️',
+    title: 'Find Heat Hotspots',
+    description: 'Interactive map showing 250+ heat hotspots across Mumbai. Click any location to see its temperature and what\'s causing the heat.',
+    stat: '250+ locations',
   },
   {
     id: 'ai-analysis',
     emoji: '🧠',
-    title: 'AI Analysis',
-    description:
-      'Explainable ML models pinpoint drivers of overheating — albedo, impervious surfaces, tree cover — with SHAP importance scores.',
-    stat: '94 % accuracy',
+    title: 'Understand the Causes',
+    description: 'AI-powered analysis shows the top drivers of heat — from population density to lack of vegetation. Know WHY an area is hot.',
+    stat: '98% accuracy',
   },
   {
     id: 'interventions',
-    emoji: '🏙️',
-    title: 'Smart Interventions',
-    description:
-      'Scenario planning lets planners simulate green roofs, cool pavements, and tree planting before committing budget and resources.',
+    emoji: '🌱',
+    title: 'Test Cooling Solutions',
+    description: 'Simulate interventions like tree planting or cool roofs. See exactly how much temperature can be reduced — before spending any money.',
     stat: 'Real-time sim',
   },
 ];
 
-function FeaturesSection() {
+function FeaturesSection({ theme }) {
+  const isDark = theme === 'dark';
+
   return (
     <section
       id="features"
-      className="section-alt py-24 px-4"
-      aria-labelledby="features-heading"
+      className="py-24 px-4"
+      style={{
+        background: isDark 
+          ? 'linear-gradient(180deg, #1B2735, #0f0c29)'
+          : 'linear-gradient(180deg, #f1f8e9, #ffffff)',
+        transition: 'background 0.5s ease',
+      }}
     >
       <div className="max-w-6xl mx-auto">
 
-        {/* Header */}
         <Reveal>
           <div className="text-center mb-14">
-            <span className="badge mb-4">⚡ How It Works</span>
+            <span className="badge mb-4" style={{
+              background: isDark ? 'rgba(255,215,0,0.1)' : 'rgba(46,125,50,0.1)',
+              border: isDark ? '1px solid rgba(255,215,0,0.2)' : '1px solid rgba(46,125,50,0.2)',
+              color: isDark ? '#FFD93D' : '#2e7d32',
+              padding: '6px 16px',
+              borderRadius: '999px',
+              fontSize: '0.75rem',
+              fontWeight: '600',
+            }}>⚡ How It Works</span>
             <h2
               id="features-heading"
-              className="gradient-text font-black leading-tight mb-4"
+              className="font-black leading-tight mb-4"
               style={{
                 fontFamily: 'Poppins, Inter, sans-serif',
                 fontSize: 'clamp(1.8rem, 3.5vw, 3rem)',
+                color: isDark ? '#FFFFFF' : '#1a1a2e',
               }}
             >
-              Three Steps to a Cooler City
+              Three Steps to a Cooler Mumbai
             </h2>
-            <p
-              className="max-w-xl mx-auto"
-              style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.7' }}
-            >
-              From raw satellite data to actionable interventions — all in one platform.
+            <p className="max-w-xl mx-auto" style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)' }}>
+              From satellite data to actionable interventions for Mumbai.
             </p>
           </div>
         </Reveal>
 
-        {/* Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {FEATURES.map(({ id, emoji, title, description, stat }, i) => (
             <Reveal key={id} delay={i * 130}>
-              <article className="card p-7 h-full flex flex-col" id={`feature-${id}`}>
-                <div className="icon-box mb-5">{emoji}</div>
-                <h3
-                  className="font-bold mb-3 text-lg"
-                  style={{ color: 'var(--text-primary)', fontFamily: 'Inter, sans-serif' }}
-                >
+              <article className="card p-7 h-full flex flex-col" style={{
+                background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.8)',
+                backdropFilter: 'blur(10px)',
+                border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)',
+                borderRadius: '20px',
+                boxShadow: isDark 
+                  ? '0 8px 32px rgba(0,0,0,0.3)'
+                  : '0 8px 32px rgba(0,0,0,0.05)',
+                transition: 'all 0.3s ease',
+              }}>
+                <div className="icon-box mb-5" style={{
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.6rem',
+                  background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+                  border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)',
+                }}>{emoji}</div>
+                <h3 className="font-bold mb-3 text-lg" style={{ color: isDark ? '#FFFFFF' : '#1a1a2e' }}>
                   {title}
                 </h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.65', flex: 1 }}>
+                <p style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)', fontSize: '0.9rem', lineHeight: '1.65', flex: 1 }}>
                   {description}
                 </p>
-                <div className="badge mt-5 self-start">✓ {stat}</div>
+                <div className="badge mt-5 self-start" style={{
+                  background: isDark ? 'rgba(255,215,0,0.1)' : 'rgba(46,125,50,0.1)',
+                  border: isDark ? '1px solid rgba(255,215,0,0.2)' : '1px solid rgba(46,125,50,0.2)',
+                  color: isDark ? '#FFD93D' : '#2e7d32',
+                  padding: '6px 14px',
+                  borderRadius: '999px',
+                  fontSize: '0.75rem',
+                  fontWeight: '600',
+                }}>✓ {stat}</div>
               </article>
             </Reveal>
           ))}
@@ -262,275 +467,68 @@ function FeaturesSection() {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   SECTION 3: LIVE METRICS
-───────────────────────────────────────────────────────────────────────────── */
-const METRICS = [
-  { id: 'cities',   to: 150,  suffix: '+', label: 'Cities Monitored',   sub: 'across 38 countries',     emoji: '🌍' },
-  { id: 'hotspots', to: 2847, suffix: '',  label: 'Heat Hotspots',       sub: 'detected this month',     emoji: '🌡️' },
-  { id: 'temp',     to: 3.2,  suffix: '°C', decimals: 1, label: 'Avg Temp Reduction', sub: 'after interventions', emoji: '❄️' },
-];
-
-function ChartPreview() {
-  const [started, setStart] = useState(false);
-  const [ref, visible]      = useReveal(0.2);
-  useEffect(() => { if (visible) setStart(true); }, [visible]);
-
-  const bars = [
-    { h: 42, label: 'Jan' }, { h: 68, label: 'Feb' }, { h: 56, label: 'Mar' },
-    { h: 82, label: 'Apr' }, { h: 48, label: 'May' }, { h: 91, label: 'Jun' },
-    { h: 73, label: 'Jul' }, { h: 62, label: 'Aug' }, { h: 50, label: 'Sep' },
-    { h: 38, label: 'Oct' }, { h: 27, label: 'Nov' }, { h: 22, label: 'Dec' },
-  ];
-
-  const barColor = (h) =>
-    h >= 80 ? '#ef4444' : h >= 60 ? '#f59e0b' : h >= 40 ? '#fbbf24' : '#22c55e';
-
-  return (
-    <div ref={ref} className="dashboard-preview p-6" aria-label="Monthly heat hotspots chart">
-      {/* Window chrome */}
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-1.5">
-          {['#ef4444','#f59e0b','#22c55e'].map((c) => (
-            <div key={c} className="w-3 h-3 rounded-full" style={{ background: c }} aria-hidden="true" />
-          ))}
-          <span className="text-xs ml-2" style={{ color: 'var(--text-muted)' }}>
-            Heat Hotspots — Monthly 2025
-          </span>
-        </div>
-        <span
-          className="text-xs px-2 py-1 rounded-md font-semibold"
-          style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e' }}
-        >
-          ● Live
-        </span>
-      </div>
-
-      {/* Bars */}
-      <div
-        className="flex items-end gap-1.5 sm:gap-2"
-        style={{ height: '120px' }}
-        role="img"
-        aria-label="Bar chart of monthly heat hotspot counts"
-      >
-        {bars.map(({ h, label }, i) => (
-          <div key={label} className="flex-1 flex flex-col items-center gap-1 min-w-0">
-            <div
-              style={{
-                width: '100%',
-                borderRadius: '4px 4px 0 0',
-                background: barColor(h),
-                opacity: 0.85,
-                minHeight: '4px',
-                transition: `height 1.1s cubic-bezier(0.34,1.56,0.64,1)`,
-                transitionDelay: started ? `${i * 55}ms` : '0ms',
-                height: started ? `${h}%` : '4px',
-              }}
-            />
-            <span
-              className="hidden sm:block text-center truncate w-full"
-              style={{ color: 'var(--text-muted)', fontSize: '0.6rem' }}
-            >
-              {label}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-4 mt-4">
-        {[
-          { c: '#ef4444', l: 'Critical' }, { c: '#f59e0b', l: 'High' },
-          { c: '#fbbf24', l: 'Moderate' }, { c: '#22c55e', l: 'Low'  },
-        ].map(({ c, l }) => (
-          <div key={l} className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: c }} aria-hidden="true" />
-            {l}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function MetricsSection() {
-  return (
-    <section
-      id="metrics"
-      className="py-24 px-4"
-      style={{ background: 'var(--bg-base)' }}
-      aria-labelledby="metrics-heading"
-    >
-      <div className="max-w-6xl mx-auto">
-
-        {/* Header */}
-        <Reveal>
-          <div className="text-center mb-14">
-            <span className="badge mb-4">📊 Live Metrics</span>
-            <h2
-              id="metrics-heading"
-              className="gradient-text font-black leading-tight mb-4"
-              style={{
-                fontFamily: 'Poppins, Inter, sans-serif',
-                fontSize: 'clamp(1.8rem, 3.5vw, 3rem)',
-              }}
-            >
-              Real-Time Impact Data
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.7', maxWidth: '500px', margin: '0 auto' }}>
-              Updated every 15 minutes from satellite feeds and ground sensors.
-            </p>
-          </div>
-        </Reveal>
-
-        {/* Metric cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-12">
-          {METRICS.map(({ id, to, suffix, decimals, label, sub, emoji }, i) => (
-            <Reveal key={id} delay={i * 110}>
-              <div className="metric-card" id={`metric-${id}`}>
-                <div className="text-3xl mb-3" aria-hidden="true">{emoji}</div>
-                <div
-                  className="gradient-text font-black mb-1"
-                  style={{ fontFamily: 'Poppins, sans-serif', fontSize: 'clamp(2.4rem, 4vw, 3.25rem)' }}
-                >
-                  <Counter to={to} suffix={suffix} decimals={decimals || 0} duration={2000} />
-                </div>
-                <div className="font-semibold mb-1" style={{ color: 'var(--text-primary)', fontSize: '1rem' }}>
-                  {label}
-                </div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{sub}</div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-
-        {/* Chart */}
-        <Reveal>
-          <ChartPreview />
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
    SECTION 4: CALL TO ACTION
 ───────────────────────────────────────────────────────────────────────────── */
-function CTASection() {
-  const [email,     setEmail]     = useState('');
-  const [submitted, setSubmitted] = useState(false);
-  const [error,     setError]     = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Please enter a valid email address.');
-      return;
-    }
-    setError('');
-    setSubmitted(true);
-  };
+function CTASection({ theme }) {
+  const isDark = theme === 'dark';
 
   return (
     <section
       id="cta"
-      className="section-alt py-24 px-4"
-      aria-labelledby="cta-heading"
+      className="py-24 px-4"
+      style={{
+        background: isDark
+          ? 'radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%)'
+          : 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%)',
+        transition: 'background 0.5s ease',
+      }}
     >
-      <div className="max-w-2xl mx-auto text-center">
+      <div className="max-w-3xl mx-auto text-center">
 
         <Reveal>
-          <span className="badge mb-6">🚀 Early Access</span>
+          <span className="badge mb-6" style={{
+            background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.8)',
+            border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.06)',
+            color: isDark ? '#FFFFFF' : '#1a1a2e',
+            padding: '6px 16px',
+            borderRadius: '999px',
+            fontSize: '0.75rem',
+            fontWeight: '600',
+          }}>🌿 Climate Action</span>
         </Reveal>
 
         <Reveal delay={80}>
           <h2
             id="cta-heading"
-            className="gradient-text font-black leading-tight mb-5"
+            className="font-black leading-tight mb-5"
             style={{
               fontFamily: 'Poppins, Inter, sans-serif',
               fontSize: 'clamp(2rem, 4.5vw, 3.5rem)',
+              color: isDark ? '#FFFFFF' : '#1a1a2e',
             }}
           >
-            Ready to Cool Your City?
+            Help Mumbai Beat the Heat
           </h2>
         </Reveal>
 
         <Reveal delay={160}>
           <p
             className="mb-10 leading-relaxed"
-            style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.95rem, 2vw, 1.1rem)' }}
+            style={{ color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)' }}
           >
-            Join 200+ city planners and climate scientists already using our platform to design
-            cooler, more resilient urban environments.
+            Explore Mumbai's heat hotspots, understand what's driving them, and test cooling solutions — all powered by real satellite data from NASA and Yale.
           </p>
         </Reveal>
 
-        {/* Email form */}
-        <Reveal delay={240}>
-          {submitted ? (
-            <div
-              className="flex flex-col items-center gap-3 py-8"
-              role="alert"
-              aria-live="polite"
-              id="cta-success"
-            >
-              <span className="text-5xl">🎉</span>
-              <p className="font-semibold text-xl" style={{ color: 'var(--text-primary)' }}>
-                You&apos;re on the list!
-              </p>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                We&apos;ll reach out soon with early access details.
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} noValidate id="cta-email-form">
-              <div className="email-input-group mb-3">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => { setEmail(e.target.value); setError(''); }}
-                  placeholder="you@yourcity.gov"
-                  aria-label="Work email address"
-                  id="cta-email-input"
-                  autoComplete="email"
-                />
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  id="cta-submit-btn"
-                  style={{
-                    flexShrink: 0,
-                    margin: '5px',
-                    borderRadius: '10px',
-                    padding: '10px 22px',
-                    fontSize: '0.9rem',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  Get Started
-                </button>
-              </div>
-              {error && (
-                <p className="text-sm mt-1" style={{ color: '#ef4444' }} role="alert" id="cta-error">
-                  {error}
-                </p>
-              )}
-            </form>
-          )}
-        </Reveal>
-
-        {/* Trust badges */}
         <Reveal delay={320}>
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-10">
-            {[
-              { icon: '🔓', label: 'Open Source'    },
-              { icon: '🤖', label: 'Powered by AI'  },
-              { icon: '📈', label: 'Data-Driven'    },
-            ].map(({ icon, label }) => (
-              <span key={label} className="trust-badge">
-                {icon} {label}
-              </span>
-            ))}
+          <div className="mt-12 p-4 rounded-xl" style={{
+            background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)',
+            backdropFilter: 'blur(10px)',
+            border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)',
+          }}>
+            <p style={{ color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)', fontSize: '0.8rem' }}>
+              📊 Powered by: YCEO Surface Urban Heat Islands Dataset • NASA • Yale Center for Earth Observation
+            </p>
           </div>
         </Reveal>
       </div>
@@ -542,29 +540,37 @@ function CTASection() {
    PAGE EXPORT
 ───────────────────────────────────────────────────────────────────────────── */
 export default function Home() {
-  const [apiStatus, setApiStatus] = useState('checking');
+  const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
-    fetch('http://localhost:8000/health')
-      .then((r) => r.json())
-      .then(() => setApiStatus('connected'))
-      .catch(() => setApiStatus('disconnected'));
+    const storedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = storedTheme || (prefersDark ? 'dark' : 'light');
+    setTheme(initialTheme);
+
+    const observer = new MutationObserver(() => {
+      const htmlClass = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+      setTheme(htmlClass);
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
   }, []);
 
   return (
     <>
       <Head>
-        <title>Urban Heat Mitigation System – AI-Powered Cooling for Cities</title>
+        <title>Cool Mumbai – AI-Powered Urban Heat Mitigation</title>
         <meta
           name="description"
-          content="Detect urban heat islands, analyse root causes with AI, and deploy smart cooling interventions. Trusted by 150+ cities worldwide."
+          content="AI-powered system for detecting urban heat hotspots in Mumbai. Understand causes and test cooling interventions with real NASA/Yale satellite data."
         />
       </Head>
       <main>
-        <HeroSection    apiStatus={apiStatus} />
-        <FeaturesSection />
-        <MetricsSection />
-        <CTASection />
+        <HeroSection theme={theme} />
+        <MetricsSection theme={theme} />
+        <FeaturesSection theme={theme} />
+        <CTASection theme={theme} />
       </main>
     </>
   );
